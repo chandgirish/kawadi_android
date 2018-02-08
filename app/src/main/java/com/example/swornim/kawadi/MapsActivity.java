@@ -1,13 +1,14 @@
 package com.example.swornim.kawadi;
 
-import android.*;
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +20,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +33,10 @@ import com.android.volley.toolbox.Volley;
 import com.example.swornim.kawadi.DataStructure.Firestore;
 import com.example.swornim.kawadi.DataStructure.NearbyRequest;
 import com.example.swornim.kawadi.DataStructure.Trucks;
+import com.example.swornim.kawadi.DataStructure.ViewDataWaste;
 import com.example.swornim.kawadi.DataStructure.Waste;
+import com.example.swornim.kawadi.DataStructure.WasteData;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,6 +46,7 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -85,9 +91,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Button updateMap;
     private Button addwastes;
+    private Button viewData;
     private TextView read;
-    private List<Nearby> nearbyList=new ArrayList<>();
+    private List<WasteData> nearbyList=new ArrayList<>();
+    private List<Waste> totalWastes=new ArrayList<>();
     private static String jsonresponse;
+    private Handler handler=new Handler();
+    private Runnable runnable;
+    private static int SHOW_WINDOW_MAP_TIMEOUT=0;
 
     LatLng sydney5;
 
@@ -98,32 +109,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         read=(TextView) findViewById(R.id.read);
         updateMap=(Button)findViewById(R.id.mapButton);
         addwastes=(Button)findViewById(R.id.addwastes);
+        viewData=(Button)findViewById(R.id.data);
+
+        viewData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(totalWastes.size()>0){
+
+                    ViewDataWaste viewDataWaste=new ViewDataWaste();
+                    viewDataWaste.setTotalWastes(totalWastes);
+
+                    Intent intent=new Intent(getApplicationContext(),ViewData.class);
+                    intent.putExtra("object",viewDataWaste);
+                    startActivity(intent);
+                }else{
+
+                    Toast.makeText(getApplicationContext(),"NO data ",Toast.LENGTH_LONG).show();
+                }
+
+
+            }
+        });
+
         updateMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 /*request nearby wastes*/
 
-                if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
+//                if (ContextCompat.checkSelfPermission(getApplicationContext(),
+//                        android.Manifest.permission.ACCESS_COARSE_LOCATION)
+//                        != PackageManager.PERMISSION_GRANTED) {
+//
+//                    // Should we show an explanation?
+//                    if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this,
+//                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
+//
+//
+//                    }else {
+//                        ActivityCompat.requestPermissions(MapsActivity.this,
+//                                new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+//                                0);
+//
+//                    }
+//
+//                }else{
+//                    Log.i("mytag","request has been sent");
+//
+//                    updateMap();
+//                }
 
-                    // Should we show an explanation?
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                //request from truck driver
+
+                Trucks truckDriver=new Trucks();
+                truckDriver.setTruckDriverName("Krishna BHADHUR Magar");
+                truckDriver.setTruckDriverPnumber("9821233455");
+                truckDriver.setTimestamp(System.currentTimeMillis()+"");
+                truckDriver.setTruckPosLat("27.618833");
+                truckDriver.setTruckPosLon("85.3566865");
+                truckDriver.setTruckId("2");
+                truckDriver.setSelfRequest(false);
+                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).
+                        addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.i("mytag", "requested  successfully " + documentReference.getId());
+                            }
 
 
-                    }else {
-                        ActivityCompat.requestPermissions(MapsActivity.this,
-                                new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                                0);
+                        });
 
-                    }
 
-                }else{
-                    Log.i("mytag","request has been sent");
 
-                    updateMap();
-                }
 
             }
         });
@@ -201,31 +258,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                    });
 //                }
 
-//                Waste waste1=new Waste();
-//                 waste1.setSourceLat("27.668837");
-//                 waste1.setSourceLon("85.384867");
-//
-//                waste1.setSourceId("6");
-//                waste1.setSourceType("Home");
-//                FirebaseFirestore.getInstance().collection("wastes").add(waste1).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                    @Override
-//                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.i("mytag","added successfully "+documentReference.getId());
-//                    }
-//                });
+                //initially wastes are zero to avoid server side logic error
+
+                Waste waste5=new Waste();
+                waste5.setSourceLat("27.628833");
+                waste5.setSourceLon("85.3166865");
+                waste5.setSourceId("5");
+                FirebaseFirestore.getInstance().collection("wastes").add(waste5).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.i("mytag","added successfully "+documentReference.getId());
+                    }
+                });
 
 
                 //request from truck driver
 //
 //                Trucks truckDriver=new Trucks();
-//                truckDriver.setTruckDriverName("HARI THAPA");
-//                truckDriver.setTruckDriverPnumber("9812312312");
+//                truckDriver.setTruckDriverName("Krishna BHADHUR Magar");
+//                truckDriver.setTruckDriverPnumber("9821233455");
 //                truckDriver.setTimestamp(System.currentTimeMillis()+"");
-//                truckDriver.setTruckPosLat("27.668840");
-//                truckDriver.setTruckPosLon("85.314867");
-//                truckDriver.setTruckId("1");
-//                truckDriver.setSelfRequest(true);
-//                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                truckDriver.setTruckPosLat("27.618833");
+//                truckDriver.setTruckPosLon("85.3566865");
+//                truckDriver.setTruckId("2");
+//                truckDriver.setSelfRequest(false);
+//                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).
+//                        addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
 //                    @Override
 //                    public void onSuccess(DocumentReference documentReference) {
 //                        Log.i("mytag","requested  successfully "+documentReference.getId());
@@ -239,7 +297,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-        FirebaseFirestore.getInstance().document("pickers/4Wj9Yt8BjCnEiSOi3IbP").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+
+//        FirebaseFirestore.getInstance().document("pickers/NWZR9fCKP4h1RJqocBCD").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        Log.i("mytag","data "+documentSnapshot);
+//                        Trucks trucks=documentSnapshot.toObject(Trucks.class);
+//                        Log.i("mytag","truck driver name  "+trucks.getTruckDriverName());
+//
+//                        try {
+//                            JSONArray jsonArray=new JSONArray(trucks.getTruckwastes());
+//                            Gson gson=new Gson();
+//
+//                            for(int i=0;i<jsonArray.length();i++){
+//                               WasteData each= gson.fromJson(jsonArray.getJSONObject(i).toString(),WasteData.class);
+//                               Log.i("mytag","each sourcetype "+each.getSourceType());
+//
+//                            }
+//
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                    }
+//                });
+
+
+
+        FirebaseFirestore.getInstance().document("pickers/V6QbLxCUDTE8oijHzFjs").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -252,35 +337,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         ? "Local" : "Server";
 
                 if (documentSnapshot != null && documentSnapshot.exists()) {
-                    if(documentSnapshot.toObject(Trucks.class).getTruckwastes()!=null)
-                        Log.i("mytag", source + " data: " + documentSnapshot.toObject(Trucks.class).getTruckwastes());
-                    String jsonString=documentSnapshot.toObject(Trucks.class).getTruckwastes();
-                    try {
-                        JSONArray root=new JSONArray(jsonString);//array
-                        for(int i=0;i<root.length();i++){
-                            JSONObject jsonObject=root.getJSONObject(i);
+                    Log.i("mytag","data "+documentSnapshot);
+                        Trucks trucks=documentSnapshot.toObject(Trucks.class);
+                        Log.i("mytag","truck driver name  "+trucks.getTruckDriverName());
+
+                        try {
+                            JSONArray jsonArray=new JSONArray(trucks.getTruckwastes());
                             Gson gson=new Gson();
-                            Nearby nearby=gson.fromJson(jsonObject.toString(),Nearby.class);
-                            nearbyList.add(nearby);
-                            Log.i("mytag","sourceid  "+nearby.sourceId);
 
+                            for(int i=0;i<jsonArray.length();i++){
+                               WasteData each= gson.fromJson(jsonArray.getJSONObject(i).toString(),WasteData.class);
+                               nearbyList.add(each);
+                               Log.i("mytag","each sourcetype "+each.getSourceType());
+
+                            }
+
+                        } catch (JSONException jsonException) {
+                            jsonException.printStackTrace();
                         }
-
                         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                 .findFragmentById(R.id.map);
                         mapFragment.getMapAsync(MapsActivity.this);
+//
+//
 
-
-
-                    } catch (JSONException e1) {
-                        e1.printStackTrace();
                     }
-
-                } else {
-                    Log.i("mytag", source + " truck waste is : null");
-                }
-
 
             }
         });
@@ -290,11 +372,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
+        /* google map logo in the footer or copyrights logo should be displayed ( by default it displays
+        but should not be removed even though we can remove it programmatically by GoogleMapOptions class */
+
         mMap = googleMap;
-        //show the new style of map
-//        MapStyleOptions mapStyleOptions=MapStyleOptions.loadRawResourceStyle(this,R.raw.map_style_json);
-//        mMap.setMapStyle(mapStyleOptions);
-        // Add a marker in Sydney and move the camera
+        mMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                        this, R.raw.map_style_night));
+
 
         final Polygon polygon=mMap.addPolygon(new PolygonOptions()
                 .add
@@ -305,7 +391,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon()))
                         )
                 .strokeColor(Color.RED));
-        polygon.setStrokeWidth(5);
+        polygon.setStrokeWidth(6);
         polygon.setClickable(true);
         polygon.setTag("polygoneId");
 
@@ -354,8 +440,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-
-
         LatLng sydney1 =  new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon()));
         LatLng sydney2 =  new LatLng(Double.parseDouble(nearbyList.get(1).getSourceLat()), Double.parseDouble(nearbyList.get(1).getSourceLon()));
         LatLng sydney3 =  new LatLng(Double.parseDouble(nearbyList.get(2).getSourceLat()), Double.parseDouble(nearbyList.get(2).getSourceLon()));
@@ -363,11 +447,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 //        Log.i("mytag","distance gap "+SphericalUtil.computeDistanceBetween(sydney1,sydney2));//distance in meters
 
-        mMap.addMarker(new MarkerOptions().position(sydney1).title("Marker in Sydney1"));
-        mMap.addMarker(new MarkerOptions().position(sydney2).title("Marker in Sydney2"));
-        mMap.addMarker(new MarkerOptions().position(sydney3).title("Marker in Sydney3"));
-        mMap.addMarker(new MarkerOptions().position(sydney4).title("Marker in Sydney4"));
+        mMap.clear();
+
+        mMap.addMarker(new MarkerOptions().position(sydney2).title("Richard").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
+        mMap.addMarker(new MarkerOptions().position(sydney3).title("Eric").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
+        mMap.addMarker(new MarkerOptions().position(sydney1).title("Gilfoyle").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
+        mMap.addMarker(new MarkerOptions().position(sydney1).title("c").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
+//        mMap.addMarker(new MarkerOptions().position(sydney3).title("Hari khadka").icon(BitmapDescriptorFactory.fromResource(R.drawable.truckss)));
+//        mMap.addMarker(new MarkerOptions().position(sydney4).title("Hari Thapa").icon(BitmapDescriptorFactory.fromResource(R.drawable.marker1)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney3,16));
+
+        mMap.setInfoWindowAdapter(new CustomInformationWindow());
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(final Marker marker) {
+                Log.i("mytag","custom info clicked" +marker.getTitle());
+                marker.hideInfoWindow();
+
+
+            }
+        });
+
+        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+                runnable=null;
+            }
+        });
+
         /*zoom level details values:
 
         1 =>world
@@ -421,6 +529,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
+        /*get all the wastes and show them */
+
+        FirebaseFirestore.getInstance().collection("wastes").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot documentSnapshots) {
+
+                for(DocumentSnapshot eachDoc:documentSnapshots){
+                    Waste waste=eachDoc.toObject(Waste.class);
+                    LatLng latLng=new LatLng(Double.parseDouble(waste.getSourceLat()),Double.parseDouble(waste.getSourceLon()));
+                    mMap.addMarker(new MarkerOptions().position(latLng));
+                    totalWastes.add(waste);
+                }
+
+            }
+        });
+
+
+
+
+
+    }
+
+
+    private class CustomInformationWindow implements GoogleMap.InfoWindowAdapter{
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            View mView=getLayoutInflater().inflate(R.layout.custom_map_info,null);
+            TextView driverName=mView.findViewById(R.id.driverName);
+            ImageView driverPhoto=mView.findViewById(R.id.driverPhoto);
+
+            if(marker.getTitle().equals("Gilfoyle")){
+                driverPhoto.setImageResource(R.mipmap.gilfoyle);
+                driverName.setText(marker.getTitle());
+
+            }
+            if(marker.getTitle().equals("Richard")){
+                driverPhoto.setImageResource(R.mipmap.richard);
+                driverName.setText(marker.getTitle());
+
+            }
+            if(marker.getTitle().equals("Eric")){
+                driverPhoto.setImageResource(R.mipmap.silicon_valley2);
+                driverName.setText(marker.getTitle());
+
+            }
+            if(marker.getTitle().equals("buckethead")){
+                driverPhoto.setImageResource(R.mipmap.littlehead);
+                driverName.setText(marker.getTitle());
+
+            }
+
+
+
+            return mView;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            return  null;
+        }
     }
 
     private void requestRoutingData(final String origin, final String destination) throws IOException {
@@ -844,17 +1013,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Adding all the points in the route to LineOptions
                 lineOptions.addAll(points);
                 lineOptions.width(7);
-                lineOptions.color(Color.BLUE);
+                lineOptions.color(Color.RED);
             }
 
             // Drawing polyline in the Google Map for the i-th route
             mMap.addPolyline(lineOptions);
         }
     }
-
-
-
-
 
 
 

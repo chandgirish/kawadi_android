@@ -120,18 +120,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 //        });
 
         //add new documents in a existing collections with auto id of document but datahasnot been added :using add()
-
-     FirebaseFirestore.getInstance().collection("pickers").add(truckObject).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(final DocumentReference documentReference) {
-                //after inserting new documents add the data(if docuements dont matter u can do this )
-//                Log.i("mytag","getid "+documentReference.getId());//current added documents name
-//                Log.i("mytag","getfirestoresettings "+documentReference.getFirestore().getFirestoreSettings()+"");//firestore db settings
-//                Log.i("mytag","getfirestore app "+documentReference.getFirestore().getApp()+"");//info abt the project app ids andso on
-//                Log.i("mytag","get path "+documentReference.getPath()+"");
-
-            }
-        });
+//
+//     FirebaseFirestore.getInstance().collection("pickers").add(truckObject).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//            @Override
+//            public void onSuccess(final DocumentReference documentReference) {
+//                //after inserting new documents add the data(if docuements dont matter u can do this )
+////                Log.i("mytag","getid "+documentReference.getId());//current added documents name
+////                Log.i("mytag","getfirestoresettings "+documentReference.getFirestore().getFirestoreSettings()+"");//firestore db settings
+////                Log.i("mytag","getfirestore app "+documentReference.getFirestore().getApp()+"");//info abt the project app ids andso on
+////                Log.i("mytag","get path "+documentReference.getPath()+"");
+//
+//            }
+//        });
 
 //
 //     FirebaseFirestore.getInstance().collection("pickers").add(truckObject).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -177,22 +177,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         waste.setSourceLat("27.698840");
         waste.setSourceLon("85.313860");
         waste.setSourceStatus(Values.WASTE_AVAILABLE);//available
-
-        FirebaseFirestore.getInstance().collection("wastes").add(waste).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                if(documentReference!=null){
-                    documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            Log.i("mytag",documentSnapshot.getData()+"");
-
-                        }
-                    });
-                }
-
-            }
-        });
+//
+//        FirebaseFirestore.getInstance().collection("wastes").add(waste).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//            @Override
+//            public void onSuccess(DocumentReference documentReference) {
+//                if(documentReference!=null){
+//                    documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                            Log.i("mytag",documentSnapshot.getData()+"");
+//
+//                        }
+//                    });
+//                }
+//
+//            }
+//        });
 
         registerDriver.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,25 +220,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 trucks3.setTimestamp(System.currentTimeMillis()+"");
 
 
-
-                FirebaseFirestore.getInstance().collection("registerDrivers").add(trucks1).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(final DocumentReference documentReference) {
-
-
-                    }
-                }); FirebaseFirestore.getInstance().collection("registerDrivers").add(trucks2).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(final DocumentReference documentReference) {
-
-                    }
-                }); FirebaseFirestore.getInstance().collection("registerDrivers").add(trucks3).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(final DocumentReference documentReference) {
-
-
-                    }
-                });
+//
+//                FirebaseFirestore.getInstance().collection("registerDrivers").add(trucks1).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(final DocumentReference documentReference) {
+//
+//
+//                    }
+//                }); FirebaseFirestore.getInstance().collection("registerDrivers").add(trucks2).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(final DocumentReference documentReference) {
+//
+//                    }
+//                }); FirebaseFirestore.getInstance().collection("registerDrivers").add(trucks3).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(final DocumentReference documentReference) {
+//
+//
+//                    }
+//                });
             }
         });
 
@@ -267,12 +267,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     public void onLocationChanged(Location location) {
         Log.i("mytag",location+"");
-
+        new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LAT",String.valueOf(location.getLatitude()));
+        new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LON",String.valueOf(location.getLongitude()));
+//
         if((Object)location.getLatitude() instanceof Double){
             progressBar.setVisibility(View.GONE);
             //update the current location of the user address
             //also stop listening futher updates
             locationManager.removeUpdates(this);
+            startActivity(new Intent(MainActivity.this,MapsActivity.class));
+
         }
 
         Log.i("mytag","nothing called");
@@ -331,10 +335,5 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         }
     };
 
-
-
-
-
-
-    }
+}
 

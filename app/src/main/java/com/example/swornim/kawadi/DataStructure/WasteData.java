@@ -1,16 +1,16 @@
 package com.example.swornim.kawadi.DataStructure;
 
-import com.example.swornim.kawadi.MapsActivity;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by swornim on 1/5/18.
+ * Created by swornim on 2/7/18.
  */
 
-public class Waste implements Serializable{
+public class WasteData {
+
+    /*wastedata class represents the wastes collection */
+
     private String sourceType;//HOMES OR OFFICES OR OTHERS
     private String sourceLat;
     private String sourceLon;
@@ -18,36 +18,8 @@ public class Waste implements Serializable{
     private String sourceStatus;
     private String distance;
     private String duration;
-    private String paths;//Json string of arrays format
+    private List<Paths> paths=new ArrayList<>();
 
-
-    public Waste() {}
-
-    public Waste(String sourceType, String sourceLat, String sourceLon, String sourceId, String sourceStatus,String distance,String duration) {
-        this.sourceType = sourceType;
-        this.sourceLat = sourceLat;
-        this.sourceLon = sourceLon;
-        this.sourceId = sourceId;
-        this.sourceStatus = sourceStatus;
-        this.distance = distance;
-        this.duration = duration;
-    }
-
-    public String getDistance() {
-        return distance;
-    }
-
-    public void setDistance(String distance) {
-        this.distance = distance;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
 
     public String getSourceType() {
         return sourceType;
@@ -87,5 +59,29 @@ public class Waste implements Serializable{
 
     public void setSourceStatus(String sourceStatus) {
         this.sourceStatus = sourceStatus;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public List<Paths> getPaths() {
+        return paths;
+    }
+
+    public void setPaths(List<Paths> paths) {
+        this.paths = paths;
     }
 }
