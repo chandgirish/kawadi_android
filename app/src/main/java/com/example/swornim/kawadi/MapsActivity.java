@@ -136,6 +136,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Adding new driver ",Toast.LENGTH_LONG).show();
+
                 /*request nearby wastes*/
 
 //                if (ContextCompat.checkSelfPermission(getApplicationContext(),
@@ -161,25 +163,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                }
 
                 //request from truck driver
-
-                Trucks truckDriver=new Trucks();
-                truckDriver.setTruckDriverName("Krishna BHADHUR Magar");
-                truckDriver.setTruckDriverPnumber("9821233455");
-                truckDriver.setTimestamp(System.currentTimeMillis()+"");
-                truckDriver.setTruckPosLat("27.618833");
-                truckDriver.setTruckPosLon("85.3566865");
-                truckDriver.setTruckId("2");
-                truckDriver.setSelfRequest(false);
-                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).
-                        addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.i("mytag", "requested  successfully " + documentReference.getId());
-                            }
-
-
-                        });
-
+//
+//                Trucks truckDriver=new Trucks();
+//                truckDriver.setTruckDriverName("Krishna BHADHUR Magar");
+//                truckDriver.setTruckDriverPnumber("9821233455");
+//                truckDriver.setTimestamp(System.currentTimeMillis()+"");
+//                truckDriver.setTruckPosLat("27.618833");
+//                truckDriver.setTruckPosLon("85.3566865");
+//                truckDriver.setTruckId("2");
+//                truckDriver.setSelfRequest(false);
+//                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).
+//                        addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                            @Override
+//                            public void onSuccess(DocumentReference documentReference) {
+//                                Log.i("mytag", "requested  successfully " + documentReference.getId());
+//                            }
+//
+//
+//                        });
+//
 
 
 
@@ -189,6 +191,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addwastes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getApplicationContext(),"Adding new waste predefined",Toast.LENGTH_LONG).show();
+
 
 //                read.setText(jsonresponse);
 //
@@ -260,17 +264,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                }
 
                 //initially wastes are zero to avoid server side logic error
-
-                Waste waste5=new Waste();
-                waste5.setSourceLat("27.628833");
-                waste5.setSourceLon("85.3166865");
-                waste5.setSourceId("5");
-                FirebaseFirestore.getInstance().collection("wastes").add(waste5).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.i("mytag","added successfully "+documentReference.getId());
-                    }
-                });
+//
+//                Waste waste5=new Waste();
+//                waste5.setSourceLat("27.628833");
+//                waste5.setSourceLon("85.3166865");
+//                waste5.setSourceId("5");
+//                FirebaseFirestore.getInstance().collection("wastes").add(waste5).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//                        Log.i("mytag","added successfully "+documentReference.getId());
+//                    }
+//                });
 
 
                 //request from truck driver
