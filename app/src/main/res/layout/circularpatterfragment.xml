@@ -29,6 +29,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_blur_circular_white_24dp" />
+        <ImageView
+            android:id="@+id/nearbyTrucks"
+            android:layout_weight="1"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_local_shipping_white_24dp" />
 
         <ImageView
             android:id="@+id/nearbyOptions"
@@ -37,6 +44,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_near_me_white_24dp" />
+
+
 
 
     </LinearLayout>

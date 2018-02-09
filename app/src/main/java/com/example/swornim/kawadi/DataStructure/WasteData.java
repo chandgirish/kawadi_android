@@ -1,5 +1,6 @@
 package com.example.swornim.kawadi.DataStructure;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import java.util.List;
  * Created by swornim on 2/7/18.
  */
 
-public class WasteData {
+public class WasteData implements Serializable {
 
     /*wastedata class represents the wastes collection */
 

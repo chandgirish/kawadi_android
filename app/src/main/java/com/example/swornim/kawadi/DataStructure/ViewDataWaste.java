@@ -9,13 +9,13 @@ import java.util.List;
 
 public class ViewDataWaste implements Serializable{
 
-    private List<Waste> totalWastes;
+    private List<WasteData> totalWastes;
 
-    public List<Waste> getTotalWastes() {
+    public List<WasteData> getTotalWastes() {
         return totalWastes;
     }
 
-    public void setTotalWastes(List<Waste> totalWastes) {
+    public void setTotalWastes(List<WasteData> totalWastes) {
         this.totalWastes = totalWastes;
     }
 }

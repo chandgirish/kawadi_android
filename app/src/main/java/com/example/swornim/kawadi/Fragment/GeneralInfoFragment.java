@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.example.swornim.kawadi.DataStructure.ViewDataWaste;
 import com.example.swornim.kawadi.DataStructure.Waste;
+import com.example.swornim.kawadi.DataStructure.WasteData;
 import com.example.swornim.kawadi.R;
 
 import java.util.ArrayList;
@@ -24,9 +25,10 @@ import java.util.List;
  */
 
 public class GeneralInfoFragment extends Fragment {
-    private List<Waste> wasteList=new ArrayList<>();
+    private List<WasteData> nearbyWaste=new ArrayList<>();
     private ListView listView;
-    private ArrayAdapter<Waste> adapter;
+    private ArrayAdapter<WasteData> adapter;
+    private List<Integer> bubbleContainer=new ArrayList<>();
 
 
 
@@ -50,30 +52,53 @@ public class GeneralInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
         View mView=inflater.inflate(R.layout.generalinfofragment,container,false);
+
+
         ViewDataWaste viewDataWaste=(ViewDataWaste) getArguments().getSerializable("object");
-
-        for(int i=0;i<viewDataWaste.getTotalWastes().size();i++){
-            Log.i("mytag",viewDataWaste.getTotalWastes().get(i).getSourceLat());
-
-        }
-
+        nearbyWaste=viewDataWaste.getTotalWastes();
         listView= mView.findViewById(R.id.viewDataListview);
-        wasteList=viewDataWaste.getTotalWastes();
         adapter=new ViewdataAdapter(getContext());
-
         listView.setAdapter(adapter);
 
         return mView;
     }
 
 
+    private void bubbleSorting(){
+        //ascending order
+
+        for(int i=0;i<bubbleContainer.size()-i;i++){
+            //for each completion of loop i dont have to sort the last index
+
+            for(int j=0;j<bubbleContainer.size()-i-1;j++){
+                //for each inner loop same as i loop but -1 is because in one loop i compare two index at once and swap them as well
+                if(bubbleContainer.get(j)>bubbleContainer.get(j+1)){
+                    int save=bubbleContainer.get(j+1);
+                    bubbleContainer.set(j+1,bubbleContainer.get(j));
+                    bubbleContainer.set(j,save);
+                }
+            }
 
 
 
-    private class ViewdataAdapter extends ArrayAdapter<Waste>{
+
+
+
+
+        }
+
+
+
+    }
+
+
+
+
+
+    private class ViewdataAdapter extends ArrayAdapter<WasteData>{
 
         public ViewdataAdapter( Context context) {
-            super(context, R.layout.generalinfofragmentcustom,wasteList);
+            super(context, R.layout.generalinfofragmentcustom,nearbyWaste);
         }
 
 
@@ -90,12 +115,15 @@ public class GeneralInfoFragment extends Fragment {
             TextView sourceDistance=mView.findViewById(R.id.generalinfofragmentcustomtvdistance);
             TextView sourceDuration=mView.findViewById(R.id.generalinfofragmentcustomtvduration);
 
-            sourceStatus.setText(wasteList.get(position).getSourceStatus());
+            sourceStatus.setText(nearbyWaste.get(position).getSourceType());
             sourceIndex.setText(position+"");
-            sourceDistance.setText(wasteList.get(position).getDistance());
-            sourceDuration.setText(wasteList.get(position).getDuration());
-
-
+            int totalDistance=0;
+            int totalDuration=0;
+            WasteData each=nearbyWaste.get(position);
+            totalDistance+=Integer.parseInt(each.getDistance());
+            totalDuration+=Integer.parseInt(each.getDuration());
+            sourceDistance.setText(totalDistance+" meter");
+            sourceDuration.setText(totalDuration+" minutes");
 
             return mView;
         }

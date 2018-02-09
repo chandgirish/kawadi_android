@@ -40,8 +40,9 @@ public class ViewData extends AppCompatActivity {
         viewPager= findViewById(R.id.viewPager);
         viewPageAdapter=new ViewPageAdapter(getSupportFragmentManager());
         Fragment fragment1 = GeneralInfoFragment.newInstance(viewDataWaste);
+        Fragment fragment2 = CircularPatternFragment.newInstance(viewDataWaste);
         viewPageAdapter.addFragments(fragment1);
-        viewPageAdapter.addFragments(new CircularPatternFragment());
+        viewPageAdapter.addFragments(fragment2);
         viewPager.setAdapter(viewPageAdapter);
         tabLayout.setupWithViewPager(viewPager);
 

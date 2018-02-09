@@ -99,6 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Handler handler=new Handler();
     private Runnable runnable;
     private static int SHOW_WINDOW_MAP_TIMEOUT=0;
+    private String url;//this is url of map direction api
 
     LatLng sydney5;
 
@@ -115,10 +116,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
 
-                if(totalWastes.size()>0){
+                if(nearbyList.size()>0){
 
                     ViewDataWaste viewDataWaste=new ViewDataWaste();
-                    viewDataWaste.setTotalWastes(totalWastes);
+                    viewDataWaste.setTotalWastes(nearbyList);
 
                     Intent intent=new Intent(getApplicationContext(),ViewData.class);
                     intent.putExtra("object",viewDataWaste);
@@ -326,7 +327,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         FirebaseFirestore.getInstance().document("pickers/V6QbLxCUDTE8oijHzFjs").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+            public void onEvent(final DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
                 if (e != null) {
                     Log.i("mytag", "Listen failed.", e);
@@ -341,20 +342,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Trucks trucks=documentSnapshot.toObject(Trucks.class);
                         Log.i("mytag","truck driver name  "+trucks.getTruckDriverName());
 
-                        try {
-                            JSONArray jsonArray=new JSONArray(trucks.getTruckwastes());
-                            Gson gson=new Gson();
 
-                            for(int i=0;i<jsonArray.length();i++){
-                               WasteData each= gson.fromJson(jsonArray.getJSONObject(i).toString(),WasteData.class);
-                               nearbyList.add(each);
-                               Log.i("mytag","each sourcetype "+each.getSourceType());
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Trucks trucks = documentSnapshot.toObject(Trucks.class);
 
-                            }
+                                    try {
+                                        JSONArray jsonArray = new JSONArray(trucks.getTruckwastes());
+                                        Gson gson = new Gson();
 
-                        } catch (JSONException jsonException) {
-                            jsonException.printStackTrace();
-                        }
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            WasteData each = gson.fromJson(jsonArray.getJSONObject(i).toString(), WasteData.class);
+                                            nearbyList.add(each);
+                                            Log.i("mytag", "each sourcetype " + each.getSourceType());
+
+                                        }
+
+                                        for (int i = 0; i < nearbyList.size() - i; i++) {
+                                            //for each waste object
+                                            for (int j = 0; j < nearbyList.size() - i - 1; j++) {
+                                                //for each swaping process
+                                                if (Integer.parseInt(nearbyList.get(j).getDistance()) > Integer.parseInt(nearbyList.get(j + 1).getDistance())) {
+                                                    WasteData save = nearbyList.get(j + 1);
+                                                    nearbyList.set(j + 1, nearbyList.get(j));
+                                                    nearbyList.set(j, save);
+                                                }
+
+                                            }
+
+                                        }
+
+                                    }catch (Exception allException){
+                                        allException.printStackTrace();
+                                    }
+
+                                }
+                            }).start();
+
                         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                 .findFragmentById(R.id.map);
@@ -529,21 +554,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        /*get all the wastes and show them */
-
-        FirebaseFirestore.getInstance().collection("wastes").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot documentSnapshots) {
-
-                for(DocumentSnapshot eachDoc:documentSnapshots){
-                    Waste waste=eachDoc.toObject(Waste.class);
-                    LatLng latLng=new LatLng(Double.parseDouble(waste.getSourceLat()),Double.parseDouble(waste.getSourceLon()));
-                    mMap.addMarker(new MarkerOptions().position(latLng));
-                    totalWastes.add(waste);
-                }
-
-            }
-        });
+        /*get all the nearby wastes for that truck driver */
 
 
 
@@ -923,6 +934,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }catch(Exception e){
             Log.i("mytag", e.toString());
+            Toast.makeText(getApplicationContext(),"Downloading error check internet connection",Toast.LENGTH_LONG).show();
+
         }finally{
             iStream.close();
             urlConnection.disconnect();
@@ -945,6 +958,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 data = downloadUrl(url[0]);//json response
             }catch(Exception e){
                 Log.d("Background Task",e.toString());
+                DownloadTask downloadTask=new DownloadTask();
+                downloadTask.execute(url);
+
             }
             return data;
         }
@@ -972,14 +988,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
 
-            try{
-                jObject = new JSONObject(jsonData[0]);
-                DirectionsJSONParser parser = new DirectionsJSONParser();
+            if(!jsonData.equals("")) {
+                try {
+                    jObject = new JSONObject(jsonData[0]);
+                    DirectionsJSONParser parser = new DirectionsJSONParser();
 
-                // Starts parsing data
-                routes = parser.parse(jObject);
-            }catch(Exception e){
-                e.printStackTrace();
+                    // Starts parsing data
+                    routes = parser.parse(jObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else{
+                Toast.makeText(getApplicationContext(),"No Json Response from server",Toast.LENGTH_LONG).show();
+
             }
             return routes;
         }
@@ -991,33 +1012,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             PolylineOptions lineOptions = null;
             MarkerOptions markerOptions = new MarkerOptions();
 
-            // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
-                points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
 
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
+            if (result != null) {
+                // Traversing through all the routes
+                for (int i = 0; i < result.size(); i++) {
+                    points = new ArrayList<LatLng>();
+                    lineOptions = new PolylineOptions();
 
-                // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
+                    // Fetching i-th route
+                    List<HashMap<String, String>> path = result.get(i);
 
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
+                    // Fetching all the points in i-th route
+                    for (int j = 0; j < path.size(); j++) {
+                        HashMap<String, String> point = path.get(j);
 
-                    points.add(position);
+                        double lat = Double.parseDouble(point.get("lat"));
+                        double lng = Double.parseDouble(point.get("lng"));
+                        LatLng position = new LatLng(lat, lng);
+
+                        points.add(position);
+                    }
+
+                    // Adding all the points in the route to LineOptions
+                    lineOptions.addAll(points);
+                    lineOptions.width(7);
+                    lineOptions.color(Color.RED);
                 }
 
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(7);
-                lineOptions.color(Color.RED);
+                // Drawing polyline in the Google Map for the i-th route
+                mMap.addPolyline(lineOptions);
+            }else{
+                Toast.makeText(getApplicationContext(),"Probably Routing error",Toast.LENGTH_LONG).show();
             }
-
-            // Drawing polyline in the Google Map for the i-th route
-            mMap.addPolyline(lineOptions);
         }
     }
 

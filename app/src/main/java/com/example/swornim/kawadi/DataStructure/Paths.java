@@ -1,10 +1,12 @@
 package com.example.swornim.kawadi.DataStructure;
 
+import java.io.Serializable;
+
 /**
  * Created by swornim on 2/7/18.
  */
 
-public class Paths {
+public class Paths implements Serializable {
     private String sourceType;//HOMES OR OFFICES OR OTHERS
     private String sourceLat;
     private String sourceLon;
