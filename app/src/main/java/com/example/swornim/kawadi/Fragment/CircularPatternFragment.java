@@ -485,7 +485,7 @@ public class CircularPatternFragment extends Fragment {
 
         }catch(Exception e){
             Log.i("mytag", e.toString());
-            Toast.makeText(getContext(),"Downloading error check internet connection",Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(),"Downloading error check internet connection",Toast.LENGTH_SHORT).show();
 
         }finally{
             iStream.close();
@@ -550,7 +550,7 @@ public class CircularPatternFragment extends Fragment {
                     e.printStackTrace();
                 }
             }else{
-                Toast.makeText(getContext(),"No Json Response from server",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),"No Json Response from server",Toast.LENGTH_SHORT).show();
 
             }
             return routes;
@@ -593,7 +593,7 @@ public class CircularPatternFragment extends Fragment {
                 // Drawing polyline in the Google Map for the i-th route
                 map.addPolyline(lineOptions);
             }else{
-                Toast.makeText(getContext(),"Probably Routing error",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),"Probably Routing error",Toast.LENGTH_SHORT).show();
             }
         }
     }
