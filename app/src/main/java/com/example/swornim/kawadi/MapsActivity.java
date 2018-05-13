@@ -1,22 +1,12 @@
 package com.example.swornim.kawadi;
 
-import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
+
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.os.Handler;
-import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContentResolverCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,377 +14,49 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.swornim.kawadi.DataStructure.Firestore;
-import com.example.swornim.kawadi.DataStructure.NearbyRequest;
-import com.example.swornim.kawadi.DataStructure.Trucks;
-import com.example.swornim.kawadi.DataStructure.ViewDataWaste;
-import com.example.swornim.kawadi.DataStructure.Waste;
 import com.example.swornim.kawadi.DataStructure.WasteData;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
+
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.maps.android.SphericalUtil;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    private Button updateMap;
-    private Button addwastes;
-    private Button viewData;
-    private TextView read;
+    private GoogleMap directionMap;
     private List<WasteData> nearbyList=new ArrayList<>();
-    private List<Waste> totalWastes=new ArrayList<>();
-    private static String jsonresponse;
-    private Handler handler=new Handler();
-    private Runnable runnable;
-    private static int SHOW_WINDOW_MAP_TIMEOUT=0;
-    private String url;//this is url of map direction api
-
-    LatLng sydney5;
+    private SupportMapFragment supportMapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        read=(TextView) findViewById(R.id.read);
-        updateMap=(Button)findViewById(R.id.mapButton);
-        addwastes=(Button)findViewById(R.id.addwastes);
-        viewData=(Button)findViewById(R.id.data);
 
-        viewData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if(nearbyList.size()>0){
-
-                    ViewDataWaste viewDataWaste=new ViewDataWaste();
-                    viewDataWaste.setTotalWastes(nearbyList);
-
-                    Intent intent=new Intent(getApplicationContext(),ViewData.class);
-                    intent.putExtra("object",viewDataWaste);
-                    startActivity(intent);
-                }else{
-
-                    Toast.makeText(getApplicationContext(),"NO data ",Toast.LENGTH_LONG).show();
-                }
-
-
-            }
-        });
-
-        updateMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getApplicationContext(),"Adding new driver ",Toast.LENGTH_LONG).show();
-
-                /*request nearby wastes*/
-
-//                if (ContextCompat.checkSelfPermission(getApplicationContext(),
-//                        android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//                        != PackageManager.PERMISSION_GRANTED) {
-//
-//                    // Should we show an explanation?
-//                    if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this,
-//                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
-//
-//
-//                    }else {
-//                        ActivityCompat.requestPermissions(MapsActivity.this,
-//                                new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-//                                0);
-//
-//                    }
-//
-//                }else{
-//                    Log.i("mytag","request has been sent");
-//
-//                    updateMap();
-//                }
-
-                //request from truck driver
-//
-//                Trucks truckDriver=new Trucks();
-//                truckDriver.setTruckDriverName("Krishna BHADHUR Magar");
-//                truckDriver.setTruckDriverPnumber("9821233455");
-//                truckDriver.setTimestamp(System.currentTimeMillis()+"");
-//                truckDriver.setTruckPosLat("27.618833");
-//                truckDriver.setTruckPosLon("85.3566865");
-//                truckDriver.setTruckId("2");
-//                truckDriver.setSelfRequest(false);
-//                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).
-//                        addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                            @Override
-//                            public void onSuccess(DocumentReference documentReference) {
-//                                Log.i("mytag", "requested  successfully " + documentReference.getId());
-//                            }
-//
-//
-//                        });
-//
-
-
-
-            }
-        });
-
-        addwastes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getApplicationContext(),"Adding new waste predefined",Toast.LENGTH_LONG).show();
-
-
-//                read.setText(jsonresponse);
-//
-//                File file=new File(Environment.getExternalStorageDirectory(),"json.txt");
-//                if(!file.exists()){
-//                    try {
-//                        file.createNewFile();
-//                        FileOutputStream fileout=openFileOutput(file, MODE_PRIVATE);
-//                        OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
-//                        outputWriter.write(jsonresponse);
-//                        outputWriter.close();
-//
-//
-//
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-
-
-                //add 20 wastes explicitly
-//
-//                List<Waste> wasteList=new ArrayList<>();
-//                Waste waste1=new Waste();
-//                waste1.setSourceLat("27.698840");
-//                waste1.setSourceLon("85.313860");
-//                waste1.setSourceId("1");
-//
-//                Waste waste2=new Waste();
-//                waste2.setSourceLat("27.608837");
-//                waste2.setSourceLon("85.314867");
-//                waste2.setSourceId("2");
-//
-//                Waste waste3=new Waste();
-//                waste3.setSourceLat("27.658845");
-//                waste3.setSourceLon("85.324864");
-//                waste3.setSourceId("3");
-//
-//                Waste waste4=new Waste();
-//                waste4.setSourceLat("27.678847");
-//                waste4.setSourceLon("85.314964");
-//                waste4.setSourceId("4");
-//
-//                Waste waste5=new Waste();
-//                waste5.setSourceLat("27.628833");
-//                waste5.setSourceLon("85.3166865");
-//                waste5.setSourceId("5");
-//
-//
-//
-//                wasteList.add(waste1);
-//                wasteList.add(waste2);
-//                wasteList.add(waste3);
-//                wasteList.add(waste4);
-//                wasteList.add(waste5);
-//
-//                for(int i=0;i<wasteList.size();i++){
-//                    FirebaseFirestore.getInstance().collection("wastes").add(wasteList.get(i)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<DocumentReference> task) {
-//                            task.getResult().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                                @Override
-//                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                                    Log.i("mytag",documentSnapshot.toObject(Waste.class).getSourceLat()+"");
-//                                }
-//                            });
-//                        }
-//                    });
-//                }
-
-                //initially wastes are zero to avoid server side logic error
-//
-//                Waste waste5=new Waste();
-//                waste5.setSourceLat("27.628833");
-//                waste5.setSourceLon("85.3166865");
-//                waste5.setSourceId("5");
-//                FirebaseFirestore.getInstance().collection("wastes").add(waste5).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                    @Override
-//                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.i("mytag","added successfully "+documentReference.getId());
-//                    }
-//                });
-
-
-                //request from truck driver
-//
-//                Trucks truckDriver=new Trucks();
-//                truckDriver.setTruckDriverName("Krishna BHADHUR Magar");
-//                truckDriver.setTruckDriverPnumber("9821233455");
-//                truckDriver.setTimestamp(System.currentTimeMillis()+"");
-//                truckDriver.setTruckPosLat("27.618833");
-//                truckDriver.setTruckPosLon("85.3566865");
-//                truckDriver.setTruckId("2");
-//                truckDriver.setSelfRequest(false);
-//                FirebaseFirestore.getInstance().collection("pickers").add(truckDriver).
-//                        addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                    @Override
-//                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.i("mytag","requested  successfully "+documentReference.getId());
-//                    }
-//                });
-
-
-
-            }
-        });
-
-
-
-
-//        FirebaseFirestore.getInstance().document("pickers/NWZR9fCKP4h1RJqocBCD").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        Log.i("mytag","data "+documentSnapshot);
-//                        Trucks trucks=documentSnapshot.toObject(Trucks.class);
-//                        Log.i("mytag","truck driver name  "+trucks.getTruckDriverName());
-//
-//                        try {
-//                            JSONArray jsonArray=new JSONArray(trucks.getTruckwastes());
-//                            Gson gson=new Gson();
-//
-//                            for(int i=0;i<jsonArray.length();i++){
-//                               WasteData each= gson.fromJson(jsonArray.getJSONObject(i).toString(),WasteData.class);
-//                               Log.i("mytag","each sourcetype "+each.getSourceType());
-//
-//                            }
-//
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                });
-
-
-
-        FirebaseFirestore.getInstance().document("pickers/V6QbLxCUDTE8oijHzFjs").addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(final DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                if (e != null) {
-                    Log.i("mytag", "Listen failed.", e);
-                    return;
-                }
-
-                String source = documentSnapshot != null && documentSnapshot.getMetadata().hasPendingWrites()
-                        ? "Local" : "Server";
-
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Log.i("mytag","data "+documentSnapshot);
-                        Trucks trucks=documentSnapshot.toObject(Trucks.class);
-                        Log.i("mytag","truck driver name  "+trucks.getTruckDriverName());
-
-
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Trucks trucks = documentSnapshot.toObject(Trucks.class);
-
-                                    try {
-                                        JSONArray jsonArray = new JSONArray(trucks.getTruckwastes());
-                                        Gson gson = new Gson();
-
-                                        for (int i = 0; i < jsonArray.length(); i++) {
-                                            WasteData each = gson.fromJson(jsonArray.getJSONObject(i).toString(), WasteData.class);
-                                            nearbyList.add(each);
-                                            Log.i("mytag", "each sourcetype " + each.getSourceType());
-
-                                        }
-
-                                        for (int i = 0; i < nearbyList.size() - i; i++) {
-                                            //for each waste object
-                                            for (int j = 0; j < nearbyList.size() - i - 1; j++) {
-                                                //for each swaping process
-                                                if (Integer.parseInt(nearbyList.get(j).getDistance()) > Integer.parseInt(nearbyList.get(j + 1).getDistance())) {
-                                                    WasteData save = nearbyList.get(j + 1);
-                                                    nearbyList.set(j + 1, nearbyList.get(j));
-                                                    nearbyList.set(j, save);
-                                                }
-
-                                            }
-
-                                        }
-
-                                    }catch (Exception allException){
-                                        allException.printStackTrace();
-                                    }
-
-                                }
-                            }).start();
-
-                        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-                        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                                .findFragmentById(R.id.map);
-                        mapFragment.getMapAsync(MapsActivity.this);
-//
-//
-
-                    }
-
-            }
-        });
+        supportMapFragment=(SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.directionMap);
 
 
     }
@@ -405,90 +67,61 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         /* google map logo in the footer or copyrights logo should be displayed ( by default it displays
         but should not be removed even though we can remove it programmatically by GoogleMapOptions class */
 
-        mMap = googleMap;
-        mMap.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(
-                        this, R.raw.map_style_night));
+        directionMap = googleMap;
+        directionMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style_night));
 
 
-        final Polygon polygon=mMap.addPolygon(new PolygonOptions()
-                .add
-                        (
-                        new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon())),
-                        new LatLng(Double.parseDouble(nearbyList.get(1).getSourceLat()), Double.parseDouble(nearbyList.get(1).getSourceLon())),
-                        new LatLng(Double.parseDouble(nearbyList.get(2).getSourceLat()), Double.parseDouble(nearbyList.get(2).getSourceLon())),
-                        new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon()))
-                        )
-                .strokeColor(Color.RED));
-        polygon.setStrokeWidth(6);
-        polygon.setClickable(true);
-        polygon.setTag("polygoneId");
+//        final Polygon polygon=mMap.addPolygon(new PolygonOptions()
+//                .add
+//                        (
+//                        new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon())),
+//                        new LatLng(Double.parseDouble(nearbyList.get(1).getSourceLat()), Double.parseDouble(nearbyList.get(1).getSourceLon())),
+//                        new LatLng(Double.parseDouble(nearbyList.get(2).getSourceLat()), Double.parseDouble(nearbyList.get(2).getSourceLon())),
+//                        new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon()))
+//                        )
+//                .strokeColor(Color.RED));
+//        polygon.setStrokeWidth(6);
+//        polygon.setClickable(true);
+//        polygon.setTag("polygoneId");
+//
+//        mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
+//            @Override
+//            public void onPolygonClick(Polygon polygon) {
+//
+//                Log.i("mytag","polygone tag "+polygon.getTag());
+//                Log.i("mytag","polygone id "+polygon.getId());
+//                Log.i("mytag","stroke width  "+polygon.getStrokeWidth());
+//
+//            }
+//        });
 
-        mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
-            @Override
-            public void onPolygonClick(Polygon polygon) {
-
-                Log.i("mytag","polygone tag "+polygon.getTag());
-                Log.i("mytag","polygone id "+polygon.getId());
-                Log.i("mytag","stroke width  "+polygon.getStrokeWidth());
-
-            }
-        });
-
-        Polyline line = mMap.addPolyline(new PolylineOptions()
+        Polyline line = directionMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0), new LatLng(27.68, 85))
                         .width(5)
                         .color(Color.BLUE));
         line.setClickable(true);
 
-        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
-            @Override
-            public void onPolylineClick(Polyline polyline) {
-                Log.i("mytag","polyline is cliked width  "+polygon.getPoints());
+//        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+//            @Override
+//            public void onPolylineClick(Polyline polyline) {
+//                Log.i("mytag","polyline is cliked width  "+polygon.getPoints());
+//
+//            }
+//        });
 
-            }
-        });
 
-
-        Circle circle = mMap.addCircle(new CircleOptions()
+        Circle circle = directionMap.addCircle(new CircleOptions()
                 .center(new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon())))
 
                 .radius(50)
                 .strokeColor(Color.BLUE)
                 .fillColor(Color.YELLOW));
-
         circle.setClickable(true);
 
-        mMap.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
-            @Override
-            public void onCircleClick(Circle circle) {
 
-                Toast.makeText(getApplicationContext(),"Wastages around KOTESHWOR AREA ",Toast.LENGTH_SHORT).show();
-            }
-        });
+        directionMap.setInfoWindowAdapter(new CustomInformationWindow());
 
-
-
-        LatLng sydney1 =  new LatLng(Double.parseDouble(nearbyList.get(0).getSourceLat()), Double.parseDouble(nearbyList.get(0).getSourceLon()));
-        LatLng sydney2 =  new LatLng(Double.parseDouble(nearbyList.get(1).getSourceLat()), Double.parseDouble(nearbyList.get(1).getSourceLon()));
-        LatLng sydney3 =  new LatLng(Double.parseDouble(nearbyList.get(2).getSourceLat()), Double.parseDouble(nearbyList.get(2).getSourceLon()));
-        LatLng sydney4 =  new LatLng(Double.parseDouble(nearbyList.get(3).getSourceLat()), Double.parseDouble(nearbyList.get(3).getSourceLon()));
-
-//        Log.i("mytag","distance gap "+SphericalUtil.computeDistanceBetween(sydney1,sydney2));//distance in meters
-
-        mMap.clear();
-
-        mMap.addMarker(new MarkerOptions().position(sydney2).title("Richard").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
-        mMap.addMarker(new MarkerOptions().position(sydney3).title("Eric").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
-        mMap.addMarker(new MarkerOptions().position(sydney1).title("Gilfoyle").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
-        mMap.addMarker(new MarkerOptions().position(sydney1).title("c").icon(BitmapDescriptorFactory.fromResource(R.mipmap.garbagetruck)));
-//        mMap.addMarker(new MarkerOptions().position(sydney3).title("Hari khadka").icon(BitmapDescriptorFactory.fromResource(R.drawable.truckss)));
-//        mMap.addMarker(new MarkerOptions().position(sydney4).title("Hari Thapa").icon(BitmapDescriptorFactory.fromResource(R.drawable.marker1)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney3,16));
-
-        mMap.setInfoWindowAdapter(new CustomInformationWindow());
-
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+        directionMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(final Marker marker) {
                 Log.i("mytag","custom info clicked" +marker.getTitle());
@@ -498,10 +131,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+        directionMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
             @Override
             public void onInfoWindowClose(Marker marker) {
-                runnable=null;
             }
         });
 
@@ -515,28 +147,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
          */
 
-
-//        FirebaseFirestore.getInstance().collection("wastes").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//
-//                for(DocumentSnapshot eachDoc:task.getResult().getDocuments()){
-//                    Waste eachWaste=eachDoc.toObject(Waste.class);
-////                    LatLng eachLatlon=new LatLng(Double.parseDouble(eachWaste.getSourceLat()),Double.parseDouble(eachWaste.getSourceLon()));
-////                    mMap.addMarker(new MarkerOptions().position(eachLatlon).title(eachWaste.getSourceId()));
-//
-//                }
-//
-//            }
-//        });
         final List<MarkerOptions> options=new ArrayList<>();
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        directionMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 Log.i("mytag","lat is "+latLng.latitude);
                 Log.i("mytag","lon is "+latLng.longitude);
                  options.add(new MarkerOptions().position(latLng));
-                 mMap.addMarker(new MarkerOptions().position(latLng));
+                directionMap.addMarker(new MarkerOptions().position(latLng));
 
                 if(options.size()==2){
                     // Getting URL to the Google Directions API
@@ -556,11 +174,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-
-
-        /*get all the nearby wastes for that truck driver */
-
-
 
 
 
@@ -606,45 +219,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return  null;
         }
     }
-
-    private void requestRoutingData(final String origin, final String destination) throws IOException {
-
-        RequestQueue requestQueue= Volley.newRequestQueue(getApplicationContext());
-
-            StringRequest stringRequest=new StringRequest(Request.Method.GET,
-                    "https://maps.googleapis.com/maps/api/directions/json?origin="+origin+"&destination="+destination+"&waypoints=optimize:true&key=AIzaSyBBX6pCmyvDIFmrD3FAh7WzDpls0kfOTZg",
-                    new com.android.volley.Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-
-                            jsonresponse=response;
-
-                            int maxLogSize = 1000;
-                            for(int i = 0; i <= jsonresponse.length() / maxLogSize; i++) {
-                                int start = i * maxLogSize;
-                                int end = (i+1) * maxLogSize;
-                                end = end > jsonresponse.length() ? jsonresponse.length() : end;
-                                Log.i("mytag", jsonresponse.substring(start, end));
-                            }
-
-
-                        }
-                    }, new com.android.volley.Response.ErrorListener() {
-
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.i("mytag", "something went wrong during the fetch process"+error);
-                }
-            }){
-
-                };
-
-
-            requestQueue.add(stringRequest);
-
-    }
-
 
     private class Nearby implements Serializable{
         private String sourceType;//HOMES OR OFFICES OR OTHERS
@@ -723,79 +297,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-    private void updateMap(){
-
-        Trucks trucks = new Trucks();
-        trucks.setTimestamp(System.currentTimeMillis() + "");
-        trucks.setTruckId("9812121212");
-
-        //send the request for getting the wastes nearby
-        //todo maintaing single doc in each nearbyplaces collections
-        FirebaseFirestore.getInstance().collection("pickers/hello/nearbyplaces").document("nearbyplaceDoc").set(trucks).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.i("mytag","failed to request "+e);
-            }
-        });
-
-        //listeners for wastes
-        FirebaseFirestore.getInstance().document("pickers/hello/nearbyplaces/recommendedWastes").addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                if(e!=null) {
-                    Log.i("mytag", "listened failed " + e);
-                    return;
-                }
-                if(documentSnapshot!=null && documentSnapshot.exists()){
-                    Log.i("mytag", "data" + documentSnapshot.getData());
-
-                            /*NOTE : CLient sends the data but if that data is also same in database then server wont push the data so in that way both client and server have consistent data
-                              * with server has less load
-                               *
-                              firebase api maintains the cache data
-
-                              But whenever the data changes it call backs immediately
-                              */
-
-                }
-
-            }
-
-
-        });
-    }
-
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 0: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    updateMap();
-                    Log.i("mytag","user allowed location service for this application");
-
-                    } else {
-
-                        // permission denied, boo! Disable the
-                        // functionality that depends on this permission.
-                    }
-                    return;
-                }
-
-            }
-        }
-
-
-        /*map direction api*/
-        public class DirectionsJSONParser {
+    public class DirectionsJSONParser {
 
             /** Receives a JSONObject and returns a list of lists containing latitude and longitude */
             public List<List<HashMap<String,String>>> parse(JSONObject jObject){
@@ -883,8 +385,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
-
-
     private String getDirectionsUrl(LatLng origin,LatLng dest){
 
         // Origin of route
@@ -944,7 +444,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             iStream.close();
             urlConnection.disconnect();
         }
-        return data;
+        return data;//actual json response of directions
     }
 
     // Fetches data from url passed
@@ -1044,13 +544,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 // Drawing polyline in the Google Map for the i-th route
-                mMap.addPolyline(lineOptions);
+                directionMap.addPolyline(lineOptions);
             }else{
                 Toast.makeText(getApplicationContext(),"Probably Routing error",Toast.LENGTH_LONG).show();
             }
         }
     }
-
 
 
 

@@ -7,36 +7,13 @@
     android:orientation="vertical"
     tools:context="com.example.swornim.kawadi.MainActivity">
 
-    <Button
-        android:id="@+id/addwastes"
-        android:text="add wastes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/mapButton"
-        android:text="Add driver "
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/data"
-        android:text="View Data"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/read"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
+        android:id="@+id/directionMap"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_below="@id/mapButton"
         android:layout_height="match_parent"
         tools:context="com.example.swornim.kawadi.MapsActivity" />
 
