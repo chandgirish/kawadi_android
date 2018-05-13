@@ -1,10 +1,6 @@
 package com.example.swornim.kawadi.DataStructure;
 
-import com.example.swornim.kawadi.MapsActivity;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by swornim on 1/5/18.

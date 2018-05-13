@@ -18,15 +18,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".Tabactivity"
-            android:theme="@style/fullscreentheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -40,10 +31,9 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".Tabactivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".ViewData" />
-        <activity android:name=".map_activity" />
         <activity android:name=".MainActivity"></activity>
     </application>
 
