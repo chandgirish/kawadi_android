@@ -19,18 +19,35 @@ public class Waste implements Serializable{
     private String distance;
     private String duration;
     private String paths;//Json string of arrays format
+    private String sourceWeight;//weight of the source
+    private String address;//geo location address name
 
 
     public Waste() {}
 
-    public Waste(String sourceType, String sourceLat, String sourceLon, String sourceId, String sourceStatus,String distance,String duration) {
-        this.sourceType = sourceType;
-        this.sourceLat = sourceLat;
-        this.sourceLon = sourceLon;
-        this.sourceId = sourceId;
-        this.sourceStatus = sourceStatus;
-        this.distance = distance;
-        this.duration = duration;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPaths() {
+        return paths;
+    }
+
+    public void setPaths(String paths) {
+        this.paths = paths;
+    }
+
+    public String getSourceWeight() {
+        return sourceWeight;
+    }
+
+    public void setSourceWeight(String sourceWeight) {
+        this.sourceWeight = sourceWeight;
     }
 
     public String getDistance() {

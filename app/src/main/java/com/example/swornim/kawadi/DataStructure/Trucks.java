@@ -1,5 +1,8 @@
 package com.example.swornim.kawadi.DataStructure;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by swornim on 1/5/18.
  */
@@ -11,14 +14,22 @@ public class Trucks {
     private String truckDriverPnumber;
     private String truckPosLat;//current lattitude
     private String truckPosLon;//current longitude
-    private String truckwastes;//for now let it be a nearby wastes#JSON string
     private String timestamp;
-    private String distance;
-    private String duration;
+    private String distance;//to compare other trucks distance for sorting nearby trucks from that waste
+    private String duration;//to compare other trucks duration time from that request wastes
     private boolean selfRequest;//request get me the nearby wastes
     private boolean status;//currently busy or free #busy means someones load is handled free means you can assign him/her the new pending task
-
+    private String truckwaste;//to hold the list of recommended wastes
     public Trucks(){}
+
+
+    public String getTruckwaste() {
+        return truckwaste;
+    }
+
+    public void setTruckwaste(String truckwaste) {
+        this.truckwaste = truckwaste;
+    }
 
     public boolean isSelfRequest() {
         return selfRequest;
@@ -100,11 +111,5 @@ public class Trucks {
         this.truckPosLon = truckPosLon;
     }
 
-    public String getTruckwastes() {
-        return truckwastes;
-    }
 
-    public void setTruckwastes(String truckwastes) {
-        this.truckwastes = truckwastes;
-    }
 }

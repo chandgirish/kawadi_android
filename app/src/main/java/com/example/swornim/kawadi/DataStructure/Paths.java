@@ -15,7 +15,24 @@ public class Paths implements Serializable {
     private String distance;
     private String duration;
     private String paths;
+    private String address;
+    private String sourceWeight;
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getSourceWeight() {
+        return sourceWeight;
+    }
+
+    public void setSourceWeight(String sourceWeight) {
+        this.sourceWeight = sourceWeight;
+    }
 
     public String getSourceType() {
         return sourceType;
