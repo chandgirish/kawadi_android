@@ -19,8 +19,27 @@ public class WasteData implements Serializable {
     private String sourceStatus;
     private String distance;
     private String duration;
+    private String sourceWeight;//weight of the source
+    private String address;//geo location address name
+
     private List<Paths> paths=new ArrayList<>();
 
+
+    public String getSourceWeight() {
+        return sourceWeight;
+    }
+
+    public void setSourceWeight(String sourceWeight) {
+        this.sourceWeight = sourceWeight;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public String getSourceType() {
         return sourceType;

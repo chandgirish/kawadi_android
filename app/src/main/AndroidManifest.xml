@@ -18,7 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".Tabactivity"
+            android:theme="@style/fullscreentheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,7 +42,9 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".ViewData"></activity>
+        <activity android:name=".ViewData" />
+        <activity android:name=".map_activity" />
+        <activity android:name=".MainActivity"></activity>
     </application>
 
 </manifest>
