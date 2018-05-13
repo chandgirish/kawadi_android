@@ -56,8 +56,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        supportMapFragment=(SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.directionMap);
-
+        SupportMapFragment supportMapFragment=(SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.directionMapFragment);
+        supportMapFragment.getMapAsync(this);
 
     }
 
@@ -68,7 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         but should not be removed even though we can remove it programmatically by GoogleMapOptions class */
 
         directionMap = googleMap;
-        directionMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style_night));
+        directionMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style_standard));
 
 
 //        final Polygon polygon=mMap.addPolygon(new PolygonOptions()
