@@ -12,16 +12,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.swornim.kawadi.DataStructure.Paths;
+import com.example.swornim.kawadi.DataStructure.TruckData;
+import com.example.swornim.kawadi.DataStructure.WasteData;
 import com.example.swornim.kawadi.R;
+import com.example.swornim.kawadi.Tabactivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +52,7 @@ public class Map extends Fragment implements  OnMapReadyCallback{
 
     private MapView mapView;
     private GoogleMap googleMap;
+    public List<WasteData> recommendedWastes = new ArrayList<>();
 
 
     @Nullable
@@ -66,10 +78,9 @@ public class Map extends Fragment implements  OnMapReadyCallback{
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap=googleMap;
         MapsInitializer.initialize(getContext());
-        LatLng latLng=new LatLng(27,85);
-        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style_only_roads));
-        googleMap.addMarker(new MarkerOptions().position(latLng).title("Hari Thapa"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
+
+        renderData(googleMap);
+
 
     }
 
@@ -330,6 +341,115 @@ public class Map extends Fragment implements  OnMapReadyCallback{
     }
 
 
+    private class CustomWindowInforamtion implements GoogleMap.InfoWindowAdapter {
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+
+            View mView=getLayoutInflater().inflate(R.layout.activity_circular,null);
+            return mView;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            View mView=getLayoutInflater().inflate(R.layout.activity_circular,null);
+            return mView;        }
+    }
+
+
+    private void renderData(final GoogleMap googleMap) {
+        FirebaseFirestore.getInstance().collection("testPickers").document("9813847444").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                if (e != null) {
+                    Log.i("mytag", "Listen failed.", e);
+                    return;
+                }
+
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Log.i("mytag", "Current data: " + documentSnapshot.getData());
+
+                    TruckData truckData = documentSnapshot.toObject(TruckData.class);
+                    Log.i("mytag", "address " + truckData.getTruckDriverName());
+                    Log.i("mytag", "SIZE " + truckData.getTruckwaste());
+                    List<WasteData> wastes = new Gson().fromJson(truckData.getTruckwaste(), List.class);
+
+                    try {
+                        if (truckData != null && truckData.getTruckwaste() != null) {
+
+                            JSONArray truckwaste = new JSONArray(truckData.getTruckwaste());
+                            Log.i("mytag", "SIZE " + truckwaste.length());
+                            for (int i = 0; i < truckwaste.length(); i++) {
+
+                                WasteData eachwaste = new WasteData();
+                                JSONObject wasteJobject = (JSONObject) truckwaste.get(i);
+                                eachwaste.setAddress(wasteJobject.optString("address"));
+                                eachwaste.setDistance(wasteJobject.optString("distance"));
+                                eachwaste.setDuration(wasteJobject.optString("duration"));
+                                eachwaste.setSourceId(wasteJobject.optString("sourceId"));
+                                eachwaste.setSourceStatus(wasteJobject.optString("sourceStatus"));
+                                eachwaste.setSourceWeight(wasteJobject.optString("sourceWeight"));
+                                eachwaste.setSourceLat(wasteJobject.optString("sourceLat"));
+                                eachwaste.setSourceLon(wasteJobject.optString("sourceLon"));
+                                if(!wasteJobject.optString("paths").equals("null") && wasteJobject.optString("paths")!=null){
+                                    JSONArray paths = new JSONArray(wasteJobject.optString("paths"));
+                                    List<Paths> eachpaths = new ArrayList<>();
+                                    for (int j = 0; j < paths.length(); j++) {
+                                        JSONObject eachpathwaste = (JSONObject) paths.get(j);
+                                        Paths eachpath = new Paths();
+                                        eachpath.setAddress(eachpathwaste.optString("address"));
+                                        eachpath.setDistance(eachpathwaste.optString("distance"));
+                                        eachpath.setDuration(eachpathwaste.optString("duration"));
+                                        eachpath.setSourceId(eachpathwaste.optString("sourceId"));
+                                        eachpath.setSourceStatus(eachpathwaste.optString("sourceStatus"));
+                                        eachpath.setSourceWeight(eachpathwaste.optString("sourceWeight"));
+                                        eachpath.setSourceLat(eachpathwaste.optString("sourceLat"));
+                                        eachpath.setSourceLon(eachpathwaste.optString("sourceLon"));
+                                        eachpaths.add(eachpath);
+
+                                    }
+                                    eachwaste.setPaths(eachpaths);
+                                }
+
+                                recommendedWastes.add(eachwaste);
+                            }
+                            //add all the wastes to the google map instance
+
+                            for(WasteData each:recommendedWastes){
+
+                                LatLng latLng=new LatLng
+                                        (
+                                                Double.parseDouble(each.getSourceLat()),
+                                                Double.parseDouble(each.getSourceLon())
+                                        );
+                                googleMap.addMarker(new MarkerOptions().position(latLng).title(each.getAddress()));
+                                googleMap.setInfoWindowAdapter(new CustomWindowInforamtion());
+                                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                    @Override
+                                    public void onInfoWindowClick(Marker marker) {
+                                        marker.hideInfoWindow();
+                                    }
+                                });
+                            }
+
+
+
+                        }
+
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                    }
+
+
+                } else {
+                    Log.i("mytag", "Current data: null");
+                }
+
+            }
+        });
+    }
 
 
 

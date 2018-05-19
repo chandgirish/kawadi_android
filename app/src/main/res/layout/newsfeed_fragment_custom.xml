@@ -9,7 +9,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+
+        android:layout_height="700px">
 
     <LinearLayout
         android:id="@+id/newsfeed_fragment_custom_info"
@@ -75,6 +76,7 @@
         android:id="@+id/newsfeed_fragment_amount_distance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_below="@id/newsfeed_fragment_custom_info">
 
         <TextView
@@ -119,7 +121,7 @@
                 android:id="@+id/directionImage"
                 android:src="@mipmap/ic_local_shipping_white_24dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="9dp"
+                android:layout_marginTop="12dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 

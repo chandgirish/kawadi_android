@@ -76,7 +76,7 @@ import java.util.Map;
 
 public class Newsfeed extends Fragment {
 
-    private List<WasteData> recommendedWastes = new ArrayList<>();
+    public List<WasteData> recommendedWastes = new ArrayList<>();
     private ArrayAdapter<WasteData> newsAdapter;
     private ListView listView;
     private Dialog loadingDialog;
@@ -164,8 +164,8 @@ public class Newsfeed extends Fragment {
             //register all the listener
             address.setText(recommendedWastes.get(position).getAddress());
             source.setText(recommendedWastes.get(position).getSourceStatus());
-            amount.setText(recommendedWastes.get(position).getSourceStatus());
-            distance.setText(recommendedWastes.get(position).getDistance());
+            amount.setText("Rs."+recommendedWastes.get(position).getSourceStatus());
+            distance.setText(recommendedWastes.get(position).getDistance()+"m");
 
 
             return mView;
@@ -263,6 +263,8 @@ public class Newsfeed extends Fragment {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
+                if(recommendedWastes.size()>0){recommendedWastes.clear();}
+
                 if (e != null) {
                     Log.i("mytag", "Listen failed.", e);
                     return;
@@ -293,39 +295,35 @@ public class Newsfeed extends Fragment {
                                 eachwaste.setSourceWeight(wasteJobject.optString("sourceWeight"));
                                 eachwaste.setSourceLat(wasteJobject.optString("sourceLat"));
                                 eachwaste.setSourceLon(wasteJobject.optString("sourceLon"));
-                                JSONArray paths = new JSONArray(wasteJobject.optString("paths"));
-                                List<Paths> eachpaths = new ArrayList<>();
-                                for (int j = 0; j < paths.length(); j++) {
-                                    JSONObject eachpathwaste = (JSONObject) paths.get(j);
-                                    Paths eachpath = new Paths();
-                                    eachpath.setAddress(eachpathwaste.optString("address"));
-                                    eachpath.setDistance(eachpathwaste.optString("distance"));
-                                    eachpath.setDuration(eachpathwaste.optString("duration"));
-                                    eachpath.setSourceId(eachpathwaste.optString("sourceId"));
-                                    eachpath.setSourceStatus(eachpathwaste.optString("sourceStatus"));
-                                    eachpath.setSourceWeight(eachpathwaste.optString("sourceWeight"));
-                                    eachpath.setSourceLat(eachpathwaste.optString("sourceLat"));
-                                    eachpath.setSourceLon(eachpathwaste.optString("sourceLon"));
-                                    eachpaths.add(eachpath);
+
+
+                                if(wasteJobject.getString("paths")!=null && !wasteJobject.getString("paths").equals("null")) {
+                                    JSONArray paths = new JSONArray(wasteJobject.getString("paths"));
+                                    List<Paths> eachpaths = new ArrayList<>();
+                                    for (int j = 0; j < paths.length(); j++) {
+                                        JSONObject eachpathwaste = (JSONObject) paths.get(j);
+                                        Paths eachpath = new Paths();
+                                        eachpath.setAddress(eachpathwaste.optString("address"));
+                                        eachpath.setDistance(eachpathwaste.optString("distance"));
+                                        eachpath.setDuration(eachpathwaste.optString("duration"));
+                                        eachpath.setSourceId(eachpathwaste.optString("sourceId"));
+                                        eachpath.setSourceStatus(eachpathwaste.optString("sourceStatus"));
+                                        eachpath.setSourceWeight(eachpathwaste.optString("sourceWeight"));
+                                        eachpath.setSourceLat(eachpathwaste.optString("sourceLat"));
+                                        eachpath.setSourceLon(eachpathwaste.optString("sourceLon"));
+                                        eachpaths.add(eachpath);
+
+                                    }
+                                    eachwaste.setPaths(eachpaths);
 
                                 }
-                                eachwaste.setPaths(eachpaths);
                                 recommendedWastes.add(eachwaste);
                             }
                             //update the listview
                             newsAdapter = new NewsfeedAdapter(getContext(), recommendedWastes);
-                            if (listView != null) {
-                                listView.setAdapter(newsAdapter);
-                            }
+                            listView.setAdapter(newsAdapter);
 
 
-                            for (WasteData each : recommendedWastes) {
-                                Log.i("mytag", "each id " + each.getSourceId());
-                                for (Paths mutual : recommendedWastes.get(0).getPaths()) {
-                                    Log.i("mytag", "mutual id " + mutual.getSourceId());
-
-                                }
-                            }
                         }
 
                     } catch (JSONException e1) {

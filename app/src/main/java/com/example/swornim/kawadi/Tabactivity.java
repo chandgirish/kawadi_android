@@ -1,5 +1,8 @@
 package com.example.swornim.kawadi;
 
+import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,9 +10,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.swornim.kawadi.Fragment.Map;
 import com.example.swornim.kawadi.Fragment.Newsfeed;
@@ -33,6 +39,17 @@ public class Tabactivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tabactivity);
 
+        WifiManager manager = (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
+        WifiInfo info = manager.getConnectionInfo();
+
+        Log.i("mytag","MAC address of router: "+info.getMacAddress());
+        Log.i("mytag","SSID of router: "+info.getSSID());
+        Log.i("mytag","BSSID of router: "+info.getBSSID());
+
+        Toast.makeText(getApplicationContext(),"BSID "+info.getBSSID(),Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),"mac "+info.getMacAddress(),Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),"BSID "+info.getBSSID(),Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),"mac "+info.getMacAddress(),Toast.LENGTH_LONG).show();
 
 
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -44,6 +61,16 @@ public class Tabactivity extends AppCompatActivity {
 
         viewPager.setAdapter(viewPageAdapter);
         tabLayout.setupWithViewPager(viewPager);
+
+
+
+        user_notification=findViewById(R.id.user_notification);
+        user_notification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Tabactivity.this,Addwaste.class));
+            }
+        });
 
     }
 

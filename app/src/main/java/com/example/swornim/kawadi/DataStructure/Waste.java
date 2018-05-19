@@ -7,6 +7,9 @@ import java.io.Serializable;
  */
 
 public class Waste implements Serializable{
+    //for sending purpose only
+
+
     private String sourceType;//HOMES OR OFFICES OR OTHERS
     private String sourceLat;
     private String sourceLon;
@@ -16,11 +19,20 @@ public class Waste implements Serializable{
     private String duration;
     private String paths;//Json string of arrays format
     private String sourceWeight;//weight of the source
+    private String sourceAmount;//weight of the source
     private String address;//geo location address name
 
 
     public Waste() {}
 
+
+    public String getSourceAmount() {
+        return sourceAmount;
+    }
+
+    public void setSourceAmount(String sourceAmount) {
+        this.sourceAmount = sourceAmount;
+    }
 
     public String getAddress() {
         return address;

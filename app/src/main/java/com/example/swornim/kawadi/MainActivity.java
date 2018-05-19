@@ -246,10 +246,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     public void onClick(DialogInterface dialog, int which) {
                         Trucks trucks2 = new Trucks();
                         trucks2.setTruckId("2");
+                        trucks2.setTruckPosLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
+                        trucks2.setTruckPosLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON") );
                         trucks2.setTruckDriverPnumber("9813847444");
                         trucks2.setTruckDriverName("Shyam hari shrestha ");
-                        trucks2.setTruckPosLat("27.658844");
-                        trucks2.setTruckPosLon("85.324860");
+
                         trucks2.setSelfRequest(false);
                         trucks2.setTimestamp(System.currentTimeMillis() + "");
 
@@ -284,8 +285,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     public void onClick(DialogInterface dialog, int which) {
 
                         Trucks trucks2 = new Trucks();
-                        trucks2.setTruckPosLat("27.658844");
-                        trucks2.setTruckPosLon("85.324860");
+                        trucks2.setTruckPosLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
+                        trucks2.setTruckPosLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON") );
                         trucks2.setTruckDriverName("Christina Rana");
                         trucks2.setSelfRequest(true);
 
@@ -322,8 +323,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     public void onClick(DialogInterface dialog, int which) {
                         Waste waste = new Waste();
                         waste.setSourceId("1");
-                        waste.setSourceLat("27.618844");
-                        waste.setSourceLon("85.3055");
+                        waste.setSourceLat( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
+                        waste.setSourceLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON"));
 
                         //set creates custom id rather than push() id
                         FirebaseFirestore.getInstance().
