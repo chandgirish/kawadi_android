@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:padding="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/background_dark"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:id="@+id/register_fragment_logo"
+            android:padding="4dp"
+            android:layout_above="@id/register_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/trash2" />
+
+        <LinearLayout
+            android:id="@+id/register_info"
+            android:orientation="vertical"
+            android:layout_above="@id/register_fragment_register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/register_fragment_name"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textAlignment="center"
+                android:layout_below="@+id/loginLogo"
+                android:layout_marginTop="4dp"
+                android:imeOptions="actionDone"
+
+                android:hint="Enter Name"
+                android:inputType="text"
+                android:paddingLeft="10dp"
+                android:paddingTop="2dp"
+                android:textColor="@android:color/background_light"
+                android:textColorHint="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="20sp"
+                android:visibility="visible" />
+
+            <EditText
+                android:id="@+id/register_fragment_number"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:imeOptions="actionDone"
+
+                android:textAlignment="center"
+                android:layout_below="@+id/registerPhoneNumber"
+                android:layout_marginTop="4dp"
+                android:hint="Enter Phone Number"
+                android:inputType="number"
+                android:paddingLeft="10dp"
+                android:paddingTop="2dp"
+                android:textColor="@android:color/background_light"
+                android:textColorHint="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="20sp"
+                android:visibility="visible" />
+
+            <EditText
+                android:id="@+id/register_fragment_password"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:imeOptions="actionDone"
+
+                android:textAlignment="center"
+                android:layout_marginTop="4dp"
+                android:hint="Enter password"
+                android:inputType="text"
+                android:paddingLeft="10dp"
+                android:paddingTop="2dp"
+                android:textColor="@android:color/background_light"
+                android:textColorHint="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="20sp"
+                android:visibility="visible" />
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/register_fragment_type_holder"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="18dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:id="@+id/register_fragment_user"
+                android:layout_width="50dp"
+                android:layout_weight="1"
+                android:src="@drawable/user"
+                android:layout_height="50dp" />
+
+
+            <ImageView
+                android:id="@+id/register_fragment_picker"
+                android:src="@mipmap/garbagetruck"
+                android:layout_weight="1"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/register_fragment_login"
+                android:src="@drawable/login"
+                android:layout_weight="1"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+            <Button
+                android:id="@+id/register_direct"
+                android:text="skip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_above="@id/register_fragment_type_holder"
+            android:id="@+id/register_fragment_register"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/register_btn"
+            app:backgroundTint="@android:color/holo_blue_dark"
+            android:layout_marginRight="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>

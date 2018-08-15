@@ -2,9 +2,10 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#ff1b7a</color>
+    <color name="colorAccent">#303F9F</color>
     <color name="holored">#ffffff</color>
     <color name="green">#8064fd</color>
-    <color name="ads_icon">#16ffe8</color>
+    <color name="ads_icon">#00d978</color>
     <color name="gray_color">#a8a7a7</color>
+    <color name="yellow">#fdea2d</color>
 </resources>

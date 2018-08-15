@@ -2,20 +2,15 @@ package com.example.swornim.kawadi;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,14 +20,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.swornim.kawadi.DataStructure.Firestore;
-import com.example.swornim.kawadi.DataStructure.NearbyRequest;
-import com.example.swornim.kawadi.DataStructure.Paths;
-import com.example.swornim.kawadi.DataStructure.TruckData;
 import com.example.swornim.kawadi.DataStructure.Trucks;
 import com.example.swornim.kawadi.DataStructure.Values;
 import com.example.swornim.kawadi.DataStructure.Waste;
-import com.example.swornim.kawadi.DataStructure.WasteData;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -43,29 +33,12 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.maps.android.SphericalUtil;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.DOMConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     private LocationManager locationManager;
@@ -81,10 +54,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        progressBar = (ProgressBar) findViewById(R.id.progressbarID);
-        registerDriver = (Button) findViewById(R.id.registerDriver);
-        driverRequest = (Button) findViewById(R.id.driverRequest);
-        addwaste = (Button) findViewById(R.id.addWaste);
+
+        progressBar=findViewById(R.id.splashProgressbar);
+        progressBar.setVisibility(View.VISIBLE);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -233,118 +205,119 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 //            }
 //        });
 
-        registerDriver.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View view) {
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
-                builder.setTitle("Register new driver ?");
-                builder.setCancelable(true);
-                builder.setPositiveButton("Yup", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Trucks trucks2 = new Trucks();
-                        trucks2.setTruckId("2");
-                        trucks2.setTruckPosLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
-                        trucks2.setTruckPosLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON") );
-                        trucks2.setTruckDriverPnumber("9813847444");
-                        trucks2.setTruckDriverName("Shyam hari shrestha ");
-
-                        trucks2.setSelfRequest(false);
-                        trucks2.setTimestamp(System.currentTimeMillis() + "");
-
-                        //set creates custom id rather than push() id
-                        FirebaseFirestore.getInstance().
-                                collection("testPickers").
-                                document(trucks2.getTruckDriverPnumber()).
-                                set(trucks2).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.i("mytag", "succesfully added new wastes");
-                            }
-                        });
-                    }
-                });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-            }
-
-        });
-
-        driverRequest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
-                builder.setTitle("Request nearby waste ?");
-                builder.setCancelable(true);
-                builder.setPositiveButton("Yup", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        Trucks trucks2 = new Trucks();
-                        trucks2.setTruckPosLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
-                        trucks2.setTruckPosLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON") );
-                        trucks2.setTruckDriverName("Christina Rana");
-                        trucks2.setSelfRequest(true);
-
-                        FirebaseFirestore.getInstance().document("testPickers/9813847444").set(trucks2).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.i("mytag", "Request sent successfully");
-                            }
-                        });
-
-                    }
-
-                });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-
-            }
-
-        });
-
-
-        addwaste.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
-                builder.setTitle("add new waste ?");
-                builder.setCancelable(true);
-                builder.setPositiveButton("Yup", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Waste waste = new Waste();
-                        waste.setSourceId("1");
-                        waste.setSourceLat( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
-                        waste.setSourceLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON"));
-
-                        //set creates custom id rather than push() id
-                        FirebaseFirestore.getInstance().
-                                collection("wastes").
-                                add(waste).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.i("mytag", "successfully added new waste");
-
-                            }
-                        });
-                    }
-                });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-            }
-
-        });
+//        registerDriver.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View view) {
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
+//                builder.setTitle("Register new driver ?");
+//                builder.setCancelable(true);
+//                builder.setPositiveButton("Yup", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        Trucks trucks2 = new Trucks();
+//                        trucks2.setTruckId("2");
+//                        trucks2.setTruckPosLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
+//                        trucks2.setTruckPosLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON") );
+//                        trucks2.setTruckDriverPnumber("9813847444");
+//                        trucks2.setTruckDriverName("Shyam hari shrestha ");
+//
+//                        trucks2.setSelfRequest(false);
+//                        trucks2.setTimestamp(System.currentTimeMillis() + "");
+//
+//                        //set creates custom id rather than push() id
+//                        FirebaseFirestore.getInstance().
+//                                collection("testPickers").
+//                                document(trucks2.getTruckDriverPnumber()).
+//                                set(trucks2).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Log.i("mytag", "succesfully added new wastes");
+//                            }
+//                        });
+//                    }
+//                });
+//
+//                AlertDialog alertDialog = builder.create();
+//                alertDialog.show();
+//
+//            }
+//
+//        });
+//
+//        driverRequest.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
+//                builder.setTitle("Request nearby waste ?");
+//                builder.setCancelable(true);
+//                builder.setPositiveButton("Yup", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        Trucks trucks2 = new Trucks();
+//                        trucks2.setTruckPosLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
+//                        trucks2.setTruckPosLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON") );
+//                        trucks2.setTruckDriverName("Christina Rana");
+//                        trucks2.setSelfRequest(true);
+//
+//                        FirebaseFirestore.getInstance().document("testPickers/9813847444").set(trucks2).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Log.i("mytag", "Request sent successfully");
+//                            }
+//                        });
+//
+//                    }
+//
+//                });
+//
+//                AlertDialog alertDialog = builder.create();
+//                alertDialog.show();
+//
+//
+//            }
+//
+//        });
+//
+//
+//        addwaste.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View view) {
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
+//                builder.setTitle("add new waste ?");
+//                builder.setCancelable(true);
+//                builder.setPositiveButton("Yup", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        Waste waste = new Waste();
+//                        waste.setSourceId("1");
+//                        waste.setSourceLat( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
+//                        waste.setSourceLon( new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON"));
+//
+//                        //set creates custom id rather than push() id
+//                        FirebaseFirestore.getInstance().
+//                                collection("wastes").
+//                                add(waste).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                            @Override
+//                            public void onSuccess(DocumentReference documentReference) {
+//                                Log.i("mytag", "successfully added new waste");
+//
+//                            }
+//                        });
+//                    }
+//                });
+//
+//                AlertDialog alertDialog = builder.create();
+//                alertDialog.show();
+//
+//            }
+//
+//        });
 
 
         //listen for changes
@@ -469,14 +442,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onLocationChanged(Location location) {
            Log.i("mytag", location + "");
+           progressBar.setVisibility(View.GONE);
 
-            new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LAT", String.valueOf(location.getLatitude()));
+        new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LAT", String.valueOf(location.getLatitude()));
             new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LON", String.valueOf(location.getLongitude()));
             progressBar.setVisibility(View.GONE);
             locationManager.removeUpdates(this);
             Toast.makeText(getApplicationContext(), "Location found successfully", Toast.LENGTH_LONG).show();
-            startActivity(new Intent(MainActivity.this,Tabactivity.class));
-
+            startActivity(new Intent(MainActivity.this,Authentication.class));
 
     }
 
@@ -549,15 +522,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                             if(location==null){
                                 new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LAT", null);
                                 new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LON", null);
-                                Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_LONG).show();
-                                Toast.makeText(getApplicationContext(), "Please once connect to the internet for a minute", Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getApplicationContext(), "Please once connect to the internet for a minute", Toast.LENGTH_LONG).show();
 
 
                             }else {
                                 // Got last known location. In some rare situations this can be null.
                                 new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LAT", location.getLatitude() + "");
                                 new CustomSharedPref(getApplicationContext()).setSharedPref("USER_CURRENT_LOCATION_LON", location.getLongitude() + "");
-                                Toast.makeText(getApplicationContext(), location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getApplicationContext(), location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_LONG).show();
                                     // Logic to handle location object
 
                             }

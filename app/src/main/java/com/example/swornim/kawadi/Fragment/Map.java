@@ -1,6 +1,10 @@
 package com.example.swornim.kawadi.Fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.swornim.kawadi.CustomSharedPref;
+import com.example.swornim.kawadi.DataStructure.Chain;
 import com.example.swornim.kawadi.DataStructure.Paths;
 import com.example.swornim.kawadi.DataStructure.TruckData;
 import com.example.swornim.kawadi.DataStructure.WasteData;
@@ -47,12 +53,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class Map extends Fragment implements  OnMapReadyCallback{
 
     private MapView mapView;
     private GoogleMap googleMap;
     public List<WasteData> recommendedWastes = new ArrayList<>();
+    private LatLng source=null;
+    private LatLng destination=null;
+    private int counter=0;
+    private List<LatLng> wasteNearby=new ArrayList<>();
+    private Chain chain=new Chain();
 
 
     @Nullable
@@ -78,9 +90,27 @@ public class Map extends Fragment implements  OnMapReadyCallback{
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap=googleMap;
         MapsInitializer.initialize(getContext());
+        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(),R.raw.map_style_standard));
+//        renderData(googleMap);
+        googleMap.clear();
+        renderChain(googleMap);
 
-        renderData(googleMap);
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
 
+                if(chain.getChains().size()>0){
+
+
+                    Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+                    dialIntent.setData(Uri.parse("tel:" +marker.getTitle()));
+                    startActivity(dialIntent);
+                }
+
+
+                return false;
+            }
+        });
 
     }
 
@@ -341,27 +371,46 @@ public class Map extends Fragment implements  OnMapReadyCallback{
     }
 
 
-    private class CustomWindowInforamtion implements GoogleMap.InfoWindowAdapter {
-
-        @Override
-        public View getInfoWindow(Marker marker) {
-
-            View mView=getLayoutInflater().inflate(R.layout.activity_circular,null);
-            return mView;
-        }
-
-        @Override
-        public View getInfoContents(Marker marker) {
-
-            View mView=getLayoutInflater().inflate(R.layout.activity_circular,null);
-            return mView;        }
-    }
+//    private class CustomWindowInforamtion implements GoogleMap.InfoWindowAdapter {
+//
+//        @Override
+//        public View getInfoWindow(Marker marker) {
+//
+//            View mView=getLayoutInflater().inflate(R.layout.activity_circular,null);
+//            return mView;
+//        }
+//
+//        @Override
+//        public View getInfoContents(Marker marker) {
+//
+//            View mView=getLayoutInflater().inflate(R.layout.activity_circular,null);
+//            return mView;
+//        }
+//    }
 
 
     private void renderData(final GoogleMap googleMap) {
         FirebaseFirestore.getInstance().collection("testPickers").document("9813847444").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+
+                wasteNearby.add(new LatLng(27.677892849699735,85.37161801010369));
+                wasteNearby.add(new LatLng(27.690113635350016,85.33579844981432));
+                wasteNearby.add(new LatLng(27.68558199196006,85.33180195838213));
+                wasteNearby.add(new LatLng(27.68812839255651,85.34130603075026));
+                wasteNearby.add(new LatLng(27.682042999205034,85.33438492566347));
+
+
+                    }
+                }).start();
+
+                if(recommendedWastes.size()>0){recommendedWastes.clear();}
 
                 if (e != null) {
                     Log.i("mytag", "Listen failed.", e);
@@ -390,11 +439,15 @@ public class Map extends Fragment implements  OnMapReadyCallback{
                                 eachwaste.setDuration(wasteJobject.optString("duration"));
                                 eachwaste.setSourceId(wasteJobject.optString("sourceId"));
                                 eachwaste.setSourceStatus(wasteJobject.optString("sourceStatus"));
+                                eachwaste.setSourceType(wasteJobject.optString("sourceType"));
                                 eachwaste.setSourceWeight(wasteJobject.optString("sourceWeight"));
                                 eachwaste.setSourceLat(wasteJobject.optString("sourceLat"));
                                 eachwaste.setSourceLon(wasteJobject.optString("sourceLon"));
-                                if(!wasteJobject.optString("paths").equals("null") && wasteJobject.optString("paths")!=null){
-                                    JSONArray paths = new JSONArray(wasteJobject.optString("paths"));
+                                eachwaste.setSourceAmount(wasteJobject.optString("sourceAmount"));
+
+
+                                if(wasteJobject.getString("paths")!=null && !wasteJobject.getString("paths").equals("null")) {
+                                    JSONArray paths = new JSONArray(wasteJobject.getString("paths"));
                                     List<Paths> eachpaths = new ArrayList<>();
                                     for (int j = 0; j < paths.length(); j++) {
                                         JSONObject eachpathwaste = (JSONObject) paths.get(j);
@@ -403,20 +456,20 @@ public class Map extends Fragment implements  OnMapReadyCallback{
                                         eachpath.setDistance(eachpathwaste.optString("distance"));
                                         eachpath.setDuration(eachpathwaste.optString("duration"));
                                         eachpath.setSourceId(eachpathwaste.optString("sourceId"));
+                                        eachpath.setSourceAmount(eachpathwaste.optString("sourceAmount"));
                                         eachpath.setSourceStatus(eachpathwaste.optString("sourceStatus"));
                                         eachpath.setSourceWeight(eachpathwaste.optString("sourceWeight"));
+                                        eachpath.setSourceType(eachpathwaste.optString("sourceType"));
                                         eachpath.setSourceLat(eachpathwaste.optString("sourceLat"));
                                         eachpath.setSourceLon(eachpathwaste.optString("sourceLon"));
                                         eachpaths.add(eachpath);
 
                                     }
                                     eachwaste.setPaths(eachpaths);
-                                }
 
+                                }
                                 recommendedWastes.add(eachwaste);
                             }
-                            //add all the wastes to the google map instance
-
                             for(WasteData each:recommendedWastes){
 
                                 LatLng latLng=new LatLng
@@ -425,14 +478,81 @@ public class Map extends Fragment implements  OnMapReadyCallback{
                                                 Double.parseDouble(each.getSourceLon())
                                         );
                                 googleMap.addMarker(new MarkerOptions().position(latLng).title(each.getAddress()));
-                                googleMap.setInfoWindowAdapter(new CustomWindowInforamtion());
-                                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                                    @Override
-                                    public void onInfoWindowClick(Marker marker) {
-                                        marker.hideInfoWindow();
-                                    }
-                                });
+
+//                                googleMap.setInfoWindowAdapter(new CustomWindowInforamtion());
+//                                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+//                                    @Override
+//                                    public void onInfoWindowClick(Marker marker) {
+//                                        marker.hideInfoWindow();
+//                                    }
+//                                });
                             }
+                            LatLng latLng=new LatLng
+                                    (
+                                            Double.parseDouble(recommendedWastes.get(0).getSourceLat()),
+                                            Double.parseDouble(recommendedWastes.get(0).getSourceLon())
+                                    );
+                            Geocoder geocoder;
+                            List<Address> addresses;
+                            geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+                            for(final LatLng each:wasteNearby){
+
+                                        try {
+                                            addresses = geocoder.getFromLocation(each.latitude, each.longitude, 1);
+                                            final String address = addresses.get(0).getAddressLine(0);
+                                            getActivity().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    googleMap.addMarker(new MarkerOptions().position(each).title(address));
+
+                                                }
+                                            });
+
+                                        } catch (IOException ex) {
+                                            ex.printStackTrace();
+                                        }
+
+                                    }
+
+
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(wasteNearby.get(1), 14));
+
+
+                            /*
+
+                            1: WorldLandmass/continent
+                            10: City
+                            15: Streets
+                            20: Buildings
+
+                             */
+
+
+                            googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                @Override
+                                public void onMapClick(LatLng latLng) {
+//                                    ++counter;
+//                                    if(counter==1){
+//                                        source=latLng;
+//                                    }
+//                                    if(counter==2){
+//                                        destination=latLng;
+//                                        String url = getDirectionsUrl(source, destination);
+//                                        DownloadTask downloadTask = new DownloadTask();
+//                                        // Start downloading json data from Google Directions API
+//                                    //    downloadTask.execute(url);
+//                                        counter=0;//reset the value
+//                                    }
+
+                                    Log.i("mytag","wasteNearby.add(new LatLng("+latLng.latitude+","+latLng.longitude+"));");
+
+                                }
+                            });
+
+
+
+
 
 
 
@@ -452,5 +572,49 @@ public class Map extends Fragment implements  OnMapReadyCallback{
     }
 
 
+    private void renderChain(final GoogleMap googleMap){
+        if(new CustomSharedPref(getContext()).getSharedPref("chains").equals("none")){
 
+        }else{
+              chain=new Gson().fromJson(new CustomSharedPref(getContext()).getSharedPref("chains"),Chain.class);
+            for(final Paths each: chain.getChains()){
+
+                Log.i("mytag","chain size "+chain.getChains().size()+"");
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        final LatLng latLng=new LatLng(Double.parseDouble(each.getSourceLat()),Double.parseDouble(each.getSourceLon()));
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                googleMap.addMarker(new MarkerOptions().position(latLng).title(each.getSourceOwner()));
+                                Log.i("mytag","chain lat "+each.getSourceLat());
+                                Log.i("mytag","chain lon "+each.getSourceLon());
+                                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
+                            }
+                        });
+
+                    }
+                }).start();
+
+            }
+
+
+        }
+
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(googleMap!=null){
+            renderChain(googleMap);
+
+        }
+    }
 }

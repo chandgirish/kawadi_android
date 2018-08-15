@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/black"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/login_fragment_back_btn"
+        android:src="@mipmap/round_keyboard_arrow_left_white_48dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    <EditText
+        android:id="@+id/login_fragment_number"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textAlignment="center"
+        android:layout_marginTop="20dp"
+        android:hint="Enter Number"
+        android:inputType="number"
+        android:paddingLeft="10dp"
+        android:imeOptions="actionDone"
+
+        android:paddingTop="2dp"
+        android:textColor="@android:color/background_light"
+        android:textColorHint="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="24sp"
+        android:visibility="visible" />
+
+    <EditText
+        android:id="@+id/login_fragment_password"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textAlignment="center"
+        android:layout_below="@+id/login_fragment_number"
+        android:layout_marginTop="20dp"
+        android:hint="Enter Password"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:paddingLeft="10dp"
+        android:paddingTop="2dp"
+        android:textColor="@android:color/background_light"
+        android:textColorHint="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="24sp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:src="@drawable/login"
+        android:id="@+id/login_fragment_login_iv"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

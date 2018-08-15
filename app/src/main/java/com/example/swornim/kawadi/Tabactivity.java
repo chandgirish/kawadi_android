@@ -3,6 +3,7 @@ package com.example.swornim.kawadi;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,14 +13,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.swornim.kawadi.Fragment.KawadiFragment;
 import com.example.swornim.kawadi.Fragment.Map;
 import com.example.swornim.kawadi.Fragment.Newsfeed;
+import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Tabactivity extends AppCompatActivity {
@@ -32,6 +41,7 @@ public class Tabactivity extends AppCompatActivity {
     private LinearLayout adsPhotoLayout;
     private ImageView user_notification;
     private TextView new_ads_text;
+    private Button picker_trucks;
 
 
     @Override
@@ -46,10 +56,10 @@ public class Tabactivity extends AppCompatActivity {
         Log.i("mytag","SSID of router: "+info.getSSID());
         Log.i("mytag","BSSID of router: "+info.getBSSID());
 
-        Toast.makeText(getApplicationContext(),"BSID "+info.getBSSID(),Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(),"mac "+info.getMacAddress(),Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(),"BSID "+info.getBSSID(),Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(),"mac "+info.getMacAddress(),Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(),"BSID "+info.getBSSID(),Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(),"mac "+info.getMacAddress(),Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(),"BSID "+info.getBSSID(),Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(),"mac "+info.getMacAddress(),Toast.LENGTH_LONG).show();
 
 
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -57,6 +67,7 @@ public class Tabactivity extends AppCompatActivity {
         viewPageAdapter = new ViewPageAdapter(getSupportFragmentManager());
 
         viewPageAdapter.addFragments(new Newsfeed());
+        viewPageAdapter.addFragments(new Map());
         viewPageAdapter.addFragments(new Map());
 
         viewPager.setAdapter(viewPageAdapter);
@@ -68,11 +79,29 @@ public class Tabactivity extends AppCompatActivity {
         user_notification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Tabactivity.this,Addwaste.class));
+//                startActivity(new Intent(Tabactivity.this,Addwaste.class));
+            }
+        });
+
+        addPhoto=findViewById(R.id.addPhoto);
+
+        addPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Tabactivity.this,PickerNearbyActivity.class));
+
             }
         });
 
     }
+
+    public ViewPager getViewPager() {
+        if (null == viewPager) {
+            viewPager = findViewById(R.id.viewPager);
+        }
+        return viewPager;
+    }
+
 
 
     public class ViewPageAdapter extends FragmentPagerAdapter {
@@ -107,9 +136,9 @@ public class Tabactivity extends AppCompatActivity {
                     return "Newsfeed";
                 case 1:
                     return "Map";
-                case 2:
-                    return "Newsfeed";
 
+                case 2:
+                    return  "Map test";
             }
             return null;
 
@@ -117,6 +146,12 @@ public class Tabactivity extends AppCompatActivity {
 
 
     }
+
+
+
+
+
+
 
 
 }

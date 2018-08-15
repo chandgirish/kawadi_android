@@ -1,5 +1,7 @@
 package com.example.swornim.kawadi.DataStructure;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,27 @@ public class WasteData implements Serializable {
 
     private String sourceWeight;//weight of the source
     private String address;//geo location address name
+    private String sourceOwner;//user phone number
+    private String sourcePicker;//drive number who picked
 
-    private List<Paths> paths=new ArrayList<>();
+
+    public String getSourcePicker() {
+        return sourcePicker;
+    }
+
+    public void setSourcePicker(String sourcePicker) {
+        this.sourcePicker = sourcePicker;
+    }
+
+    public String getSourceOwner() {
+        return sourceOwner;
+    }
+
+    public void setSourceOwner(String sourceOwner) {
+        this.sourceOwner = sourceOwner;
+    }
+
+    private List<Paths> paths = new ArrayList<>();
 
 
     public String getSourceAmount() {
@@ -114,4 +135,8 @@ public class WasteData implements Serializable {
     public void setPaths(List<Paths> paths) {
         this.paths = paths;
     }
+
+
+
+
 }

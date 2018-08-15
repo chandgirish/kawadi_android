@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -51,6 +52,7 @@ public class Addwaste extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton amount_weight_fab = (FloatingActionButton) findViewById(R.id.amount_weight_fab);
+        FloatingActionButton homeButton = (FloatingActionButton) findViewById(R.id.homeButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,9 +66,13 @@ public class Addwaste extends AppCompatActivity {
                     waste.setSourceAmount(amountValue);
                     waste.setSourceLat(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LAT"));
                     waste.setSourceLon(new CustomSharedPref(getApplicationContext()).getSharedPref("USER_CURRENT_LOCATION_LON"));
+                    //todo add sourceOwner
+                    waste.setSourceOwner(new CustomSharedPref(getApplicationContext()).getSharedPref("uPNumber"));
+                    waste.setSourcePicker("");
                     Log.i("mytag","sourceid is "+String.valueOf(new Date().getTime()));
                     waste.setSourceId(String.valueOf(new Date().getTime()));
                     waste.setSourceType(sourceType);
+                    waste.setSourceStatus("A");
                     addNewWaste(waste);
 
                 }
@@ -96,6 +102,17 @@ public class Addwaste extends AppCompatActivity {
 //                dialog.show();
 
 
+            }
+        });
+
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Going Home Page", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+                startActivity(new Intent(Addwaste.this, UserActivity.class));
             }
         });
 
@@ -160,8 +177,6 @@ public class Addwaste extends AppCompatActivity {
                 //after inserting new documents add the data(if docuements dont matter u can do this )
                 Log.i("mytag","documentID "+documentReference.getId());//current added documents name
                 Toast.makeText(getApplicationContext(),"Succesfully added new waste",Toast.LENGTH_LONG).show();
-
-                startActivity(new Intent(Addwaste.this,Tabactivity.class));
             }
         });
 

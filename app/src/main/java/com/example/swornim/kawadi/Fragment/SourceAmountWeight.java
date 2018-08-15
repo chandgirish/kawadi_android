@@ -33,7 +33,9 @@ public class SourceAmountWeight extends Fragment  {
         amountPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                Addwaste.amountValue=String.valueOf(newVal);
+                String str = "a12.334tyz.78x";
+                str = str.replaceAll("[^\\d.]", "");
+                Addwaste.amountValue=String.valueOf(newVal).replaceAll("[^\\d.]", "");
             }
         });
         amountPicker.setFormatter(new NumberPicker.Formatter() {
@@ -51,7 +53,7 @@ public class SourceAmountWeight extends Fragment  {
         weightPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                Addwaste.weightValue=String.valueOf(newVal);
+                Addwaste.weightValue=String.valueOf(newVal).replaceAll("[^\\d]", "");;
             }
         });
         weightPicker.setFormatter(new NumberPicker.Formatter() {

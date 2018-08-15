@@ -4,13 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@android:color/background_dark"
+    android:background="@color/colorPrimary"
+
     android:layout_height="match_parent">
 
     <ListView
         android:id="@+id/newsfeed_fragment_lsitview"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:dividerHeight="2dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -20,7 +23,7 @@
         android:layout_alignParentRight="true"
         android:layout_gravity="right|bottom"
         android:layout_margin="16dp"
-        android:src="@mipmap/trash2" />
+        android:src="@mipmap/trash" />
 
 
 </RelativeLayout>

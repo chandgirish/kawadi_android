@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="8dp"
+        android:layout_margin="6dp"
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@mipmap/next" />
 
@@ -23,10 +23,20 @@
         android:id="@+id/amount_weight_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_above="@+id/fab"
+        android:layout_alignParentRight="true"
+        android:layout_margin="6dp"
         app:backgroundTint="@color/colorPrimary"
-        android:layout_margin="8dp"
-        app:srcCompat="@mipmap/wasteicon" />
+        app:srcCompat="@mipmap/waste" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/homeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/amount_weight_fab"
+        app:backgroundTint="@color/colorPrimary"
+        android:layout_margin="6dp"
+        app:srcCompat="@mipmap/homepage" />
 
 </RelativeLayout>

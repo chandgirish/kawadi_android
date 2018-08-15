@@ -21,6 +21,24 @@ public class Waste implements Serializable{
     private String sourceWeight;//weight of the source
     private String sourceAmount;//weight of the source
     private String address;//geo location address name
+    private String sourceOwner;//user phone number
+    private String sourcePicker;//drive number who picked
+
+    public String getSourcePicker() {
+        return sourcePicker;
+    }
+
+    public void setSourcePicker(String sourcePicker) {
+        this.sourcePicker = sourcePicker;
+    }
+
+    public String getSourceOwner() {
+        return sourceOwner;
+    }
+
+    public void setSourceOwner(String sourceOwner) {
+        this.sourceOwner = sourceOwner;
+    }
 
 
     public Waste() {}

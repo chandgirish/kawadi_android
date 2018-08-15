@@ -43,20 +43,13 @@ public class SourceTypeFragment extends Fragment{
         sources.add("hospital");
         sources.add("office");
         sources.add("school");
-        sources.add("restaurant");
-        sources.add("restaurant");
+        sources.add("park");
         sources.add("lake");
-        sources.add("park");
-        sources.add("park");
         sources.add("restaurant");
-
+        sources.add("university");
         sources.add("park");
         sources.add("home");
-        sources.add("university");
-        sources.add("lake");
 
-        sources.add("university");
-        sources.add("university");
 
 
         arrayAdapter=new SourceTypeAdapter(getContext(),sources);
@@ -93,6 +86,7 @@ public class SourceTypeFragment extends Fragment{
                 public void onClick(View v) {
                     Toast.makeText(getContext(),sources.get(position) +"Selected",Toast.LENGTH_LONG).show();
                     Addwaste.sourceType=sources.get((int)v.getTag());
+                    //get only numeric characters
 
                 }
             });

@@ -17,9 +17,37 @@ public class Paths implements Serializable {
     private String paths;
     private String address;
     private String sourceWeight;
+    private String sourceAmount;
+    private String sourceOwner;//user phone number
+    private String sourcePicker;//drive number who picked
+
+    public String getSourcePicker() {
+        return sourcePicker;
+    }
+
+    public void setSourcePicker(String sourcePicker) {
+        this.sourcePicker = sourcePicker;
+    }
+
+    public String getSourceOwner() {
+        return sourceOwner;
+    }
+
+    public void setSourceOwner(String sourceOwner) {
+        this.sourceOwner = sourceOwner;
+    }
+
 
     public String getAddress() {
         return address;
+    }
+
+    public String getSourceAmount() {
+        return sourceAmount;
+    }
+
+    public void setSourceAmount(String sourceAmount) {
+        this.sourceAmount = sourceAmount;
     }
 
     public void setAddress(String address) {

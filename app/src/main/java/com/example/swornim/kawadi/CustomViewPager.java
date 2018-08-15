@@ -6,7 +6,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 public class CustomViewPager extends ViewPager {
-
+    //this is class that changes the xml desgin by not allowing custom swap
+    //all the normal feature of viewpager with return false makes it different behaviour
 
         public CustomViewPager(Context context) {
             super(context);

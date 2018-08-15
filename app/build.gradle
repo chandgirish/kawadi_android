@@ -36,13 +36,18 @@ dependencies {
 
     compile 'com.google.maps.android:android-maps-utils:0.5+'
     //glide library
-    implementation 'com.github.bumptech.glide:glide:4.7.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+    implementation 'com.github.bumptech.glide:glide:3.8.0'
 
     //this allows auto dialog box for locatio on even in lower api(i guess)
     compile 'com.google.android.gms:play-services-location:15.0.0'
     //google bar code reader
     implementation 'com.google.firebase:firebase-ml-vision:15.0.0'
+
+    //firebase functions
+    implementation 'com.google.firebase:firebase-functions:15.0.0'
+    //ok http
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+
 
 
 }
